@@ -27,7 +27,7 @@ UAGC WebMCP pairs invitation with deterrence. **Layer 1** exposes public enrollm
 | **Duration** | 60–90 days |
 | **Surface** | Public-facing tools only: program search, admissions steps, RFI |
 | **Data boundary** | No student education records; no FERPA-protected datasets in Phase 1 |
-| **Targets** | >25% RFI conversion lift (agent-assisted vs. baseline); >95% tool reliability; >70% unauthorized crawler trap rate; **zero** compliance incidents |
+| **Targets** | >60% agent journey completion (multi-step task); >95% tool reliability; >70% unauthorized crawler trap rate; **zero** compliance incidents |
 
 ## The Ask
 

@@ -90,7 +90,7 @@ Together, these layers create a clear message: *authorized agents are welcome an
 
 | Metric | Target |
 |--------|--------|
-| Agent-driven RFI completion rate | >25% improvement over form-only baseline |
+| Agent-assisted journey completion | >60% of agent sessions complete a multi-step task (search → detail → next action) |
 | Unauthorized scraper resource waste | >70% of trapped crawlers exit with poisoned or null data |
 | FERPA/CCPA compliance incidents | Zero |
 | WebMCP tool invocation reliability | >95% successful execution rate |
@@ -820,7 +820,7 @@ The UAGC WebMCP architecture follows Zero Trust principles:
 | **Tool discovery rate** | % of agent sessions that enumerate tools | >80% |
 | **Invocation success rate** | % of tool calls that return valid results | >95% |
 | **Response latency (p95)** | Server-side measurement | <500ms |
-| **RFI conversion lift** | A/B test: agent-assisted vs. form-only | >25% improvement |
+| **Journey completion rate** | % of agent sessions completing a multi-step task | >60% |
 | **Token efficiency** | Tokens consumed per task completion | >65% reduction vs. screenshot (per arXiv:2508.09171) |
 | **User satisfaction** | Post-interaction survey | >4.0/5.0 |
 | **Accessibility improvement** | Assistive tech task completion rate | >90% |
@@ -839,7 +839,7 @@ The UAGC WebMCP architecture follows Zero Trust principles:
 
 | Metric | Measurement Method | Target |
 |--------|-------------------|--------|
-| **Agent-sourced RFIs** | Attribution tracking on tool-submitted RFIs | Establish baseline |
+| **Agent session depth** | Avg. tools invoked per agent-assisted session | >2.5 tools/session |
 | **Time-to-first-response** | Median time from student query to substantive answer | <5 seconds |
 | **Program page engagement** | Session depth for agent-assisted vs. organic | >2x improvement |
 | **Agentic search visibility** | UAGC tool ranking in Gemini/SearchGPT results | Top 5 for target queries |
@@ -957,7 +957,7 @@ We recommend leadership approve the following:
 - Unauthorized AI scraping is extracting institutional content without attribution or reciprocal traffic. Active defense protects content value.
 
 **What success looks like after the pilot:**
-- >25% improvement in agent-driven RFI completion vs. form-only baseline
+- >60% of agent sessions complete a multi-step journey (search → detail → next action)
 - >95% tool invocation reliability
 - >70% of unauthorized crawlers trapped with poisoned or null data
 - Zero FERPA/CCPA compliance incidents
