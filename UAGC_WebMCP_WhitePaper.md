@@ -6,16 +6,18 @@
 **Date:** April 2026  
 **Authors:** UAGC Digital Strategy & Technology Team  
 **Classification:** Strategic Research Document  
-**Change log:** v2.0 — Added WebMCP API dictionary, browser support matrix, Nepenthes operational details, tarpit ecosystem comparison, canary token methodology, legal landscape analysis, expanded FERPA/CCPA/GLBA with CFR citations, school official exception analysis, state AI regulations, accreditor guidance, AEO confirmed-vs-speculative analysis, competitive landscape, 53 references (up from 19)
+**Change log:** v2.0 — Added WebMCP API dictionary, browser support matrix, Nepenthes operational details, tarpit ecosystem comparison, canary token methodology, legal landscape analysis, expanded FERPA/CCPA/GLBA with CFR citations, school official exception analysis, state AI regulations, accreditor guidance, AEO confirmed-vs-speculative analysis, competitive landscape, 53 references (up from 19); v2.1 — Restructured for executive readability: added reading guide, explicit recommendation, moved deep technical and legal detail to companion appendices document
 
 ---
 
 ## Table of Contents
 
+- [How to Read This Document](#how-to-read-this-document)
+
 1. [Executive Summary](#1-executive-summary)
 2. [The Agentic Web: A Paradigm Shift](#2-the-agentic-web-a-paradigm-shift)
    - 2.1 From Pages to Actions
-   - 2.2 The WebMCP Specification (API surface, spec maturity, testing surface)
+   - 2.2 The WebMCP Specification (summary; details in Appendix A)
    - 2.3 Why This Matters for Higher Education
 3. [WebMCP: The Invited-Guest Model](#3-webmcp-the-invited-guest-model)
    - 3.1 Philosophy
@@ -40,18 +42,33 @@
    - 7.6 AEO Performance Metrics
    - 7.7 Competitive Landscape: Higher Education and AI Agents
 8. [Regulatory Compliance: FERPA, CCPA, GLBA, and AI Agents](#8-regulatory-compliance-ferpa-ccpa-glba-and-ai-agents)
-   - 8.1 FERPA Implications (key definitions, school official exception, AI agent analysis)
-   - 8.2 CCPA/CPRA Considerations
-   - 8.3 GLBA Overlap: Financial Aid Data
-   - 8.4 State AI Regulations (2025–2026)
-   - 8.5 Accreditor Guidance on AI
+   - 8.1 FERPA: The Critical Boundary
+   - 8.2 CCPA, GLBA, and State Regulations
+   - 8.3 AI-Specific Compliance Architecture
+   - 8.4 Data Handling Rules
 9. [Security Model and Threat Analysis](#9-security-model-and-threat-analysis)
 10. [Implementation Roadmap](#10-implementation-roadmap)
 11. [Measuring Success](#11-measuring-success)
 12. [Risk Analysis and Mitigations](#12-risk-analysis-and-mitigations)
 13. [Future Directions](#13-future-directions)
-14. [Conclusion](#14-conclusion)
-15. [References](#15-references) (53 sources)
+14. [Recommendation](#14-recommendation)
+15. [Conclusion](#15-conclusion)
+16. [References](#16-references) (53 sources)
+
+---
+
+## How to Read This Document
+
+This paper serves multiple audiences. Use this guide to focus on the sections most relevant to your role:
+
+| Audience | Recommended Sections |
+|----------|---------------------|
+| **Executive leadership** | 1 (Executive Summary), 2.3 (Why Higher Ed), 5 (Dual-Layer Architecture), 10 (Roadmap), 11 (Measuring Success), 14 (Recommendation), 15 (Conclusion) |
+| **Technical architects** | Add: 2.1–2.2 (Agentic Web + WebMCP Overview), 3 (Invited-Guest Model), 6 (Tool Design), 9 (Security Model) — plus Appendices A–C |
+| **Legal and compliance** | Add: 4 (Adversarial Landscape), 8 (Regulatory Compliance) — plus Appendices D–G |
+| **Marketing and enrollment** | Add: 7 (AEO), 11 (Measuring Success), 12 (Risk Analysis) |
+
+Detailed technical specifications (API dictionaries, browser support matrices, tarpit operational parameters), legal citations (CFR sections, state regulations, accreditor guidance), and operational methodology (canary tokens, tarpit deployment) are in the companion **Technical and Legal Appendices** document.
 
 ---
 
@@ -79,6 +96,8 @@ Together, these layers create a clear message: *authorized agents are welcome an
 | WebMCP tool invocation reliability | >95% successful execution rate |
 | Token efficiency vs. screen-scraping | >65% reduction (per arXiv:2508.09171 baseline) |
 
+**Recommendation:** We recommend leadership approve this pilot as a bounded, low-risk experiment with a clear go/no-go decision point at Week 10. Phase 1 involves no student data, no FERPA-protected records, and leverages existing infrastructure. The full recommendation with approval scope is in Section 14.
+
 ---
 
 ## 2. The Agentic Web: A Paradigm Shift
@@ -95,65 +114,9 @@ WebMCP (Web Model Context Protocol) emerged from a collaboration between Google 
 
 The specification allows web developers to expose JavaScript functions as "tools" — complete with natural language descriptions and JSON Schema input definitions — that browser-based AI agents can discover and invoke. Technically, WebMCP defines the **author-side registration API** (`navigator.modelContext.registerTool()`); the **consumer-side API** (how agents enumerate and call tools) remains under active discussion (GitHub Issue #51).
 
-#### API Surface: `ModelContextTool` Dictionary
+The specification defines a `ModelContextTool` dictionary with members for `name`, `description`, `inputSchema`, `execute` callback, and optional `annotations`. Tools are registered via an imperative JavaScript API (`navigator.modelContext.registerTool()`) or a declarative HTML form annotation approach (still in flux — the declarative section is explicitly "entirely a TODO" in the spec).
 
-The `registerTool()` method accepts a `ModelContextTool` dictionary with the following members:
-
-| Member | Type | Required | Description |
-|--------|------|----------|-------------|
-| `name` | `DOMString` | Yes | Unique identifier; ASCII alphanumeric + `_` `-` `.`, max 128 chars |
-| `title` | `USVString` | No | Human-readable display name |
-| `description` | `DOMString` | Yes | Agent-readable explanation of what the tool does |
-| `inputSchema` | `object` | No | JSON Schema defining expected parameters; defaults to `{ type: "object", properties: {} }` |
-| `execute` | `ToolExecuteCallback` | Yes | Async function: `Promise<any> (object input, ModelContextClient client)` |
-| `annotations` | `ToolAnnotations` | No | Hints like `readOnlyHint` for agent decision-making |
-
-The `ModelContextClient` parameter passed to `execute` provides context about the requesting agent and includes `requestUserInteraction(callback)` for triggering browser-mediated consent flows (method steps currently marked TODO in the spec).
-
-#### Spec Maturity
-
-The API is gated behind `[SecureContext]` (HTTPS only). The imperative API (`registerTool`, `unregisterTool`) is stable and tested in Chromium's Web Platform Tests (`third_party/blink/web_tests/external/wpt/model-context/`). The declarative API (HTML form annotations) remains in flux — the declarative section of `index.bs` is explicitly "entirely a TODO," with proposed attributes (`toolname`, `tooldescription`, `toolparamdescription`, `toolautosubmit`) documented in a separate explainer but not yet normative. Input schema synthesis from form controls is under active implementation with "a loose version" in Chromium pending community feedback.
-
-#### Testing Surface
-
-Chromium exposes `navigator.modelContextTesting` (non-standard, for development) with `listTools()` and `executeTool(toolName, inputArgsJson, options?)`. The MCP-B polyfill (`@mcp-b/webmcp-polyfill`) can install this testing shim via `initializeWebMCPPolyfill({ installTestingShim: true })`. This surface may not persist in the final specification.
-
-The core API surface is `navigator.modelContext`, which supports two registration approaches:
-
-**Imperative API (JavaScript):**
-```javascript
-navigator.modelContext.registerTool({
-  name: "searchPrograms",
-  description: "Search UAGC degree programs by keyword, level, and modality",
-  inputSchema: {
-    type: "object",
-    properties: {
-      keyword: { type: "string", description: "Search term (e.g., 'education', 'business')" },
-      level: { type: "string", enum: ["associate", "bachelor", "master", "doctorate", "certificate"] },
-      modality: { type: "string", enum: ["online", "hybrid", "on-campus"] }
-    },
-    required: ["keyword"]
-  },
-  execute: async ({ keyword, level, modality }) => {
-    const results = await ProgramService.search({ keyword, level, modality });
-    return { programs: results.map(p => ({ id: p.id, name: p.name, level: p.level, url: p.url })) };
-  }
-});
-```
-
-**Declarative API (HTML form annotations):**
-```html
-<form toolname="submitRFI"
-      tooldescription="Submit a Request for Information about a UAGC program">
-  <input name="firstName" type="text" toolparamdescription="Prospective student's first name" required />
-  <input name="email" type="email" toolparamdescription="Contact email address" required />
-  <select name="programInterest" toolparamdescription="Program the student is interested in">
-    <option value="med">Master of Education</option>
-    <option value="mba">MBA</option>
-  </select>
-  <button type="submit">Request Info</button>
-</form>
-```
+> For the full API dictionary, code examples, spec maturity analysis, and testing surface details, see **Appendix A** in the companion Technical and Legal Appendices document.
 
 ### 2.3 Why This Matters for Higher Education
 
@@ -203,21 +166,11 @@ For UAGC, the optimal architecture uses both: MCP for always-available data quer
 
 ### 3.3 Cross-Browser Support and Polyfills
 
-The WebMCP specification is advancing across browsers:
+WebMCP has shipped in Chrome 146 (early preview, February 2026), with Mozilla landing implementation in Firefox 150. Edge inherits Chromium support. Safari/WebKit's position is not yet publicly documented.
 
-| Browser | Status | Timeline |
-|---------|--------|----------|
-| **Chrome/Chromium** | Early Preview (behind flags) | Chrome 146 (Feb 2026); Chrome 147 Beta adds `ontoolchange` event |
-| **Firefox** | Implementation landed | Bug 2018320 + 2018323 resolved FIXED, targeting Firefox 150 Branch |
-| **Edge** | Chromium-inherited | Functional when Chromium flags are enabled; Microsoft co-edits the CG spec |
-| **Safari/WebKit** | Unknown | No public standards-position filed as of April 2026 |
+For cross-browser development today, the MCP-B ecosystem (`@mcp-b/webmcp-polyfill`) provides a non-destructive polyfill that matches the CG draft's API surface. UAGC should develop against the polyfill today and remove it as native support widens.
 
-For cross-browser development today, the **MCP-B ecosystem** (`@mcp-b/webmcp-polyfill`) provides:
-- A non-destructive polyfill that installs `navigator.modelContext` with `registerTool` / `unregisterTool` if the native API is absent.
-- Optional testing shim (`navigator.modelContextTesting`) for development.
-- Transport layers for extension↔tab communication (`TabServerTransport`, `ExtensionServerTransport`) using `postMessage` with configurable origin validation (`allowedOrigins`, `targetOrigin`).
-
-UAGC should develop against the polyfill today and remove it as native support widens. The abstraction cost is minimal because the polyfill matches the CG draft's author-side API surface exactly.
+> For the full browser support matrix and polyfill architecture details, see **Appendix B** in the companion Technical and Legal Appendices document.
 
 ### 3.4 Tool Contract Design Principles
 
@@ -233,6 +186,8 @@ WebMCP tools should follow these design principles:
 ---
 
 ## 4. The Adversarial Landscape: AI Scraping and the Rise of Tarpits
+
+*The following defensive measures are proposed for evaluation and legal review before any deployment. All tarpit and honeypot concepts described below are subject to institutional counsel approval and would be deployed only on isolated paths that compliant crawlers and legitimate users will never encounter.*
 
 ### 4.1 The Problem: Robots.txt Is Dead
 
@@ -251,49 +206,15 @@ The Near Future Laboratory's "Tarpit AI Scrapers" artifact describes a world whe
 
 This is no longer science fiction. **Nepenthes**, an open-source tool named after the carnivorous pitcher plant, implements this concept today.
 
-#### 4.2.1 Nepenthes: Technical Architecture
+#### Nepenthes and the Tarpit Ecosystem
 
-**Maze Generation:** Nepenthes serves an effectively endless sequence of pages, each containing multiple outbound links that route back into the tarpit. URLs are constructed from a configurable wordlist with variable depth (`depth_min` / `depth_max` control how many word-segments appear in the path — e.g., `/maze/mingelen/sipe/piles/suaharo`). Pages are randomly generated but deterministic, appearing as unchanging flat files to crawlers.
+Nepenthes generates an effectively endless maze of pages containing Markov-chain content, served with intentional delays to maximize crawler resource consumption. In documented deployments, it trapped all major web crawlers while consuming minimal server resources (~1.7% CPU, ~210 MB RAM). Several other tools exist across the defense spectrum, from Cloudflare's managed AI Labyrinth to self-hosted options like Iocaine and Quixotic.
 
-**Markov Content Generation (v2+):** The corpus is held in memory (approximately 40x faster than the v1 SQLite approach with similar memory footprint). A corpus of ~60,000 lines retrains in seconds on modern hardware. Template parameters control output:
-- `markov`: fill a variable with generated text; `min`/`max` control token count.
-- `markov_array`: multiple paragraphs with `min_count`/`max_count` and per-paragraph `markov_min`/`markov_max`.
+For UAGC, the recommended approach is **Cloudflare AI Labyrinth** (if already on Cloudflare's CDN) combined with a **custom honeypot path** using Nepenthes-style Markov content for canary token embedding.
 
-**Templates:** YAML + Lustache (Mustache for Lua). Each template defines link patterns (`link`, `link_array` with `min_count`/`max_count`), Markov content blocks, and HTML structure. Templates can be customized per "silo" (virtual host partition), each with its own corpus, wordlist, delays, and URL prefixes.
+**Key limitation:** Tarpits cannot distinguish search-indexing crawlers from AI-training crawlers. This is why the UAGC architecture deploys tarpits only on isolated honeypot paths, never on production content URLs.
 
-**Drip-Feed Delivery:** Responses are intentionally slow-dripped (configurable `min_wait`/`max_wait` per request). Nginx must be configured with `proxy_buffering off` because some LLM crawlers disconnect if responses don't arrive within seconds — the drip-feed maximizes time-on-connection.
-
-**Operational Reality:**
-
-| Metric (documented example hour) | Value |
-|-----------------------------------|-------|
-| Hits | 10,015 |
-| Data served | ~14.7 MB |
-| Aggregate delay imposed on clients | ~56,020 seconds |
-| CPU usage | ~1.74% (single core) |
-| Memory | ~210 MB |
-| Active connections | 25 |
-
-The author warns of "significant continuous CPU load" and notes the system can be misconfigured in ways that take the server offline under aggressive crawling. A reverse proxy (nginx) is expected in production.
-
-**Effectiveness:** The developer reports trapping "all major web crawlers" with OpenAI's crawler described as the one that "managed to escape." Facebook's crawler allegedly exceeded 30 million hits on the author's site, motivating the project's creation. A related tarpit, Iocaine, reported a ~94% reduction in bot traffic after deployment (single-site anecdote).
-
-**Limitations:** Nepenthes cannot distinguish search-indexing crawlers from AI-training crawlers. The project explicitly warns that deploying it broadly may cause the site to disappear from legitimate search results. This is why the UAGC architecture deploys tarpits only on isolated honeypot paths, never on production content URLs.
-
-#### 4.2.2 The Tarpit Ecosystem
-
-Nepenthes is not the only option. Several tools now exist across the defense spectrum:
-
-| Tool | Mechanism | Differentiator | Deployment |
-|------|-----------|---------------|------------|
-| **Nepenthes** | Infinite maze + Markov content + drip-feed delays | Configurable silos, template system, low resource cost | Self-hosted (Lua); reverse proxy required |
-| **Cloudflare AI Labyrinth** | Hidden links for suspected scrapers; pre-generated decoy pages in R2; Workers AI generation | Network-scale bot intel; depth-of-follow as bot signal; `noindex` meta on decoys | Cloudflare dashboard opt-in |
-| **`ai-scraping-defense`** | Nginx + Lua + Python microservices; ML + optional LLM escalation; tarpit API; federated IP sharing | Full defensive platform with rate limits, blocklists, pay-per-crawl experiments | Self-hosted (Docker) |
-| **Iocaine** | Infinite maze of generated nonsense | Lightweight; reported 94% bot reduction (single-site anecdote) | Self-hosted |
-| **Quixotic** | Content poisoning focus | More "poison" than "trap" — targets training data quality | Self-hosted |
-| **Commercial Bot Management** | Fingerprinting, ML scoring, managed rules (Cloudflare, Akamai, Imperva) | Block/challenge/rate-limit rather than infinite decoys; strongest at CDN layer | SaaS |
-
-For UAGC, the recommended approach is **Cloudflare AI Labyrinth** (if already on Cloudflare's CDN) combined with a **custom honeypot path** using Nepenthes-style Markov content for canary token embedding, which Cloudflare's managed product does not support.
+> For full Nepenthes technical architecture, operational metrics, and the complete tarpit ecosystem comparison table, see **Appendix C** in the companion Technical and Legal Appendices document.
 
 ### 4.3 The Multi-Layer Defense Stack
 
@@ -307,58 +228,27 @@ Modern AI scraping defense is not a single tool but a layered stack:
 | **L4: Honeypot/Tarpit** | Fake content paths, Markov-chain pages, canary tokens | Trap, poison, and detect unauthorized crawlers |
 | **L5: WebMCP tool contracts** | Structured, consent-gated tool access | Provide legitimate agents a better path |
 
-**New advisory directives worth noting:**
+**New advisory directives worth noting:** `ai.txt` (AI Visibility UK, v1.1.1) addresses *usage* guidance ("how should you cite and use what you access?"), while TDMRep (W3C Community Group, May 2024) provides machine-readable text-and-data-mining rights reservation signals, with 50-80% adoption among major publishers.
 
-- **`ai.txt`** (AI Visibility UK, v1.1.1): A root-level `/ai.txt` plain text file with bracketed sections (`[identity]`, `[permissions]`, `[restrictions]` required; `[training]`, `[data-retention]` optional). Unlike `robots.txt` (which addresses *access* — "can you crawl?"), `ai.txt` addresses *usage* — "how should you cite, represent, and use what you access?" It is advisory with no enforcement mechanism.
-
-- **TDMRep** (W3C Community Group Final Report, May 2024): Machine-readable signals for text-and-data-mining (TDM) rights reservation. Uses `/.well-known/tdmrep.json` with location patterns, plus HTTP headers and HTML metadata. Core signal: `tdm-reservation: 1` means rights are reserved; an optional `tdm-policy` URL points to a JSON-LD/JSON/HTML policy document. Adopted by major publishers (Elsevier, Springer Nature, IEEE, Sage, Cochrane); Finnish Publishers Association estimates 50–80% adoption among trade publishers and ~70% among learning materials publishers.
+> For detailed ai.txt and TDMRep specifications, see **Appendix E** in the companion Technical and Legal Appendices document.
 
 The key insight is that **Layers 4 and 5 work together.** WebMCP provides the "right way" for agents to access your content. Anything that bypasses WebMCP and crawls raw HTML is, by definition, not using the sanctioned path — making it a legitimate target for tarpit redirection.
 
 ### 4.4 Canary Tokens: Detecting Model Contamination
 
-A **canary token** is a rare, unique string embedded in honeypot content that allows UAGC to detect when a specific AI model has ingested tarpit content. The concept borrows from benchmark integrity practices (e.g., BIG-bench canary strings like `26b5…`) and security monitoring (exfiltration detection).
+Canary tokens are rare, unique strings embedded in honeypot content that allow UAGC to detect when an AI model has ingested tarpit content. Fabricated faculty names, invented program acronyms, or unique phrases are seeded into synthetic content and periodically queried against frontier models. Community forensics have documented contamination in multiple frontier models using similar techniques, suggesting current training pipelines do not universally filter canary-marked content.
 
-**How canary tokens work in a tarpit context:**
-
-1. **Embedding.** Fabricated faculty names, invented program acronyms, or unique phrase structures are seeded into Markov-generated honeypot content. Each token is logged with its creation timestamp and the honeypot path that served it.
-
-2. **Detection.** UAGC periodically queries frontier models with prompts designed to elicit canary content (e.g., "Who is Dr. [fabricated name] at UAGC?" or "Tell me about the [invented acronym] program at UAGC"). A positive response indicates model contamination.
-
-3. **Attribution.** Because canary tokens are unique per honeypot path and time window, a positive detection reveals approximately when and how the content was ingested.
-
-**Known limitations:**
-- Canary strings can be stripped during preprocessing if scraper operators actively filter for them.
-- Effectiveness assumes some pipeline transparency — compliance is voluntary.
-- Community forensics have documented contamination in multiple frontier models using BIG-bench canary strings (LessWrong reports for GPT-4, Gemini 3 Pro, Claude Opus 4.5), suggesting current training pipelines do not universally filter canary-marked content.
-
-**UAGC implementation:** Embed 50–100 unique canary strings per quarter across honeypot paths. Maintain a private registry mapping each string to its deployment context. Run detection queries monthly against major AI models. Log all results for potential DMCA or content licensing discussions.
+> For the full canary token methodology, known limitations, and UAGC implementation plan, see **Appendix F** in the companion Technical and Legal Appendices document.
 
 ### 4.5 Legal Landscape for Tarpit Deployment
 
-Active defense must be evaluated against applicable law. No court decision has specifically addressed AI tarpit liability, but the following frameworks are relevant:
+No court decision has specifically addressed AI tarpit liability. Analysis of the Computer Fraud and Abuse Act (18 U.S.C. § 1030) and UK Computer Misuse Act suggests that operating your own server to serve unhelpful content to unwanted visitors is legally distinguishable from accessing an attacker's systems — but case law is absent. UAGC's conservative implementation ensures honeypot paths are excluded from robots.txt and sitemap.xml, serve no executable code, whitelist legitimate search engines, and require legal review before deployment.
 
-**Computer Fraud and Abuse Act (18 U.S.C. § 1030):** The CFAA targets "unauthorized access" to computers. A tarpit deploys on *the institution's own server*, serving content to visitors who access the institution's URLs. Lawfare analysis of active cyber defense distinguishes this from scenarios where a defender accesses an attacker's machine — a tarpit does not reach into the scraper's infrastructure. The potential flashpoint is § 1030(a)(5)(A) ("transmission… causing damage"), but this appears to require access to the target system, which a tarpit does not perform.
-
-**UK Computer Misuse Act:** Law Stack Exchange analysis concludes that CMA offenses hinge on "unauthorised access" to computers you do not own; operating your own server to serve unhelpful content to unwanted visitors is compared to DNS sinkholes and network tarpits — "not obviously illegal" but without case law to confirm.
-
-**Contractual / TOS framing:** If UAGC's Terms of Service prohibit automated scraping (as most university TOS do), unauthorized crawlers are accessing the site in violation of those terms. The tarpit serves content only to visitors who have already violated TOS — strengthening the institution's position.
-
-**Conservative implementation for UAGC:**
-- Honeypot paths are explicitly excluded from `robots.txt` and `sitemap.xml`. Compliant crawlers will never encounter them.
-- No executable code or malware is served — only text content.
-- Legitimate search engines are whitelisted.
-- Legal review confirms compliance before deployment.
-- All tarpit interactions are logged for forensic review.
+> For the full legal analysis including CFAA, CMA, and contractual framing, see **Appendix G** in the companion Technical and Legal Appendices document.
 
 ### 4.6 Philosophical Alignment
 
-The Near Future Laboratory's work is fundamentally about the power dynamics of the agentic web. Who gets to decide how institutional knowledge is accessed, by whom, and under what terms? UAGC WebMCP answers this question directly:
-
-- **Invited agents** (browser assistants, search agents, accessibility tools) get structured, fast, reliable access through WebMCP tools. They are treated as guests.
-- **Uninvited scrapers** (unauthorized crawlers, training data harvesters) get redirected into honeypot infrastructure. They are treated as intruders.
-
-This is not about being anti-AI. It is about institutional sovereignty over content and data.
+The dual-layer architecture directly addresses the power dynamics of the agentic web: invited agents get structured, reliable access; uninvited scrapers get redirected into honeypot infrastructure. This is not anti-AI — it is institutional sovereignty over content and data.
 
 ---
 
@@ -758,95 +648,25 @@ These products operate on messaging, CRM, and voice channels — not in the brow
 
 ## 8. Regulatory Compliance: FERPA, CCPA, GLBA, and AI Agents
 
-### 8.1 FERPA Implications
+### 8.1 FERPA: The Critical Boundary
 
-The Family Educational Rights and Privacy Act (20 U.S.C. § 1232g; 34 CFR Part 99) protects student education records at institutions receiving federal funding. The central question for WebMCP compliance: **does the tool create, maintain, or disclose an education record?**
+FERPA rights attach when an individual becomes an attending student. Phase 1 tools operate safely below this boundary:
 
-#### Key Definitions (34 CFR § 99.3)
+- **Low risk:** `searchPrograms`, `getProgramDetails`, `getAdmissionsSteps`, `findConstellationTutorial` return publicly available information. No education records involved.
+- **Medium risk:** `submitRFI` collects prospective student PII (not yet an education record under FERPA) and `getFinancialAidEstimate` uses session-only data without creating records.
+- **High risk (out of Phase 1 scope):** Any tools accessing grades, enrollment status, or financial aid awards involve education records and require the "school official" exception with vendor-level designation and contractual controls.
 
-- **Student:** An individual who **is or has been in attendance** at the institution and regarding whom the institution maintains education records. *Prospective students who have not yet attended are generally not "students" under FERPA.*
-- **Education record:** Records **(1) directly related to a student** and **(2) maintained by the institution or a party acting for the institution**, subject to listed exclusions (sole possession notes, law enforcement records, employment records, etc.).
-- **Attendance:** Defined expansively to include in-person, distance learning, correspondence, and work-study periods.
+### 8.2 CCPA, GLBA, and State Regulations
 
-**The critical boundary:** FERPA rights attach when the individual is an **attending student** (typically first day of classes or registration). A prospective student's RFI submission (name, email, phone, program interest) is **not yet an education record** under this definition — but it becomes subject to FERPA if/when the individual enrolls and the institution connects that data to their student records.
+CCPA applicability depends on UAGC's corporate structure — whether it meets the "business" definition under Cal. Civ. Code § 1798.140 should be confirmed with counsel. If applicable, WebMCP tools collecting PII must provide notice at collection, support opt-out, and handle deletion requests.
 
-#### Phase 1 Tools (Public Information): Low FERPA Risk
-- `searchPrograms`, `getProgramDetails`, `getAdmissionsSteps`: Return publicly available information. No education records are involved.
-- `findConstellationTutorial`: Returns public help content, not student-specific data.
+GLBA Safeguards apply to institutions in Title IV programs. The `getFinancialAidEstimate` tool's session-only design avoids triggering GLBA data security requirements, but future tools accessing actual financial aid records must comply with both FERPA and GLBA.
 
-#### Phase 1 Tools (PII Collection): Medium FERPA Risk
-- `submitRFI`: Collects prospective student PII (name, email, phone). Not yet an education record under FERPA (student is not yet enrolled), but subject to CCPA, GLBA (if financial context is involved), and general privacy obligations.
-- `getFinancialAidEstimate`: Collects financial context but returns only generic estimates, not student-specific records. Session-only data handling avoids record creation.
+State AI regulations (Colorado AI Act, Illinois BIPA) and accreditor guidance (WSCUC, HLC, NIST AI RMF) are emerging considerations that should be monitored.
 
-#### Future Phase Tools (Student Portal): High FERPA Risk — Out of Phase 1 Scope
+> For detailed FERPA definitions, school official exception analysis, CCPA/GLBA specifics, state regulation table, and accreditor guidance, see **Appendix D** in the companion Technical and Legal Appendices document.
 
-Tools that access grades, enrollment status, financial aid awards, or account details involve education records and require careful application of the **"school official" exception** (34 CFR § 99.31(a)(1)):
-
-**The school official exception works as follows:**
-
-1. **In-house officials** — § 99.31(a)(1)(i)(A): Disclosure is permitted to "other school officials, including teachers, within the agency or institution" whom the institution has determined have a "legitimate educational interest."
-
-2. **Outsourced functions** — § 99.31(a)(1)(i)(B): A contractor, consultant, volunteer, or other party to whom the institution has outsourced institutional services or functions may be treated as a school official **only if all three conditions are met:**
-   - **(a)** Performs an institutional service/function the institution would otherwise use employees to perform.
-   - **(b)** Is under the institution's **direct control** with respect to the use and maintenance of education records.
-   - **(c)** Is subject to the same conditions governing use and redisclosure (34 CFR § 99.33(a)).
-
-3. **Access minimization** — § 99.31(a)(1)(ii): The institution must use "reasonable methods" to ensure school officials access only records in which they have a legitimate educational interest.
-
-**Can an AI agent be a "school official"?** FERPA's construct is disclosure to *persons/parties* (employees or outside parties meeting § 99.31(a)(1)(i)(B)). An AI model/runtime is deployed by a vendor or the institution — compliance is analyzed as: (a) whether the *vendor* may be designated a school official under (a)(1)(i)(B), and (b) whether the institution maintains *direct control*, *purpose limitation*, and *redisclosure compliance* consistent with § 99.33. No public precedent exists of a university formally naming an AI system as a school official; the recommended approach is vendor-level designation with contractual controls.
-
-**Documentation requirements:**
-- Annual FERPA notice must specify criteria for who constitutes a school official and what constitutes a legitimate educational interest (34 CFR § 99.7(a)(3)(iii)).
-- Written agreements with AI vendors per US ED Student Privacy Policy Office guidance.
-- Audit trails for all disclosures from education records.
-
-### 8.2 CCPA/CPRA Considerations
-
-#### Does CCPA Apply to UAGC?
-
-Under California Civil Code § 1798.140, a "business" includes entities organized or operated "for the profit or financial benefit of shareholders or other owners." Many private nonprofit colleges do not meet this core definition, which can place significant campus data processing outside CCPA "business" obligations — **unless** another prong applies (e.g., control/common branding with a for-profit entity, separate for-profit operations, service-provider relationships).
-
-UAGC's specific corporate structure (relationship with the University of Arizona system, any OPM partnerships, or for-profit operational units) determines whether CCPA's "business" definition is triggered. This should be confirmed with counsel.
-
-#### If CCPA Applies
-
-WebMCP tools that collect PII must:
-
-- **Provide notice at the point of collection.** A browser-mediated consent prompt can serve as part of this notice, but the institution must ensure it satisfies all CCPA/CPRA requirements (categories collected, purposes, retention periods, sensitive PI use). A browser prompt alone may not constitute complete "notice at collection" under CPPA regulations.
-- **Allow opt-out of data sale/sharing.** UAGC's existing privacy policy and opt-out mechanisms apply.
-- **Support data deletion requests.** Existing CCPA infrastructure applies to data collected via WebMCP tools.
-- **Sensitive personal information.** CPRA adds additional protections for "sensitive personal information" — relevant if future tools collect financial data, precise geolocation, or biometric data.
-
-### 8.3 GLBA Overlap: Financial Aid Data
-
-The Gramm-Leach-Bliley Act's Safeguards Rule (16 CFR Part 314) applies to institutions participating in Title IV federal student aid programs. Key requirements:
-
-- **Information security program.** Documented program with risk assessment, access controls, monitoring, and incident response.
-- **MFA requirement.** Multi-factor authentication for accessing customer information systems (effective since 2023 per FTC enforcement).
-- **Vendor oversight.** Institutions must assess and monitor service providers' information security programs.
-
-**FERPA/GLBA interaction:** Institutions may satisfy GLBA Privacy Rule requirements through FERPA-compliant practices for student financial information — but GLBA Safeguards (security controls) are distinct obligations. The `getFinancialAidEstimate` tool's session-only data design avoids creating records that trigger GLBA data security requirements, but any future tools accessing actual financial aid records must comply with both FERPA and GLBA Safeguards.
-
-### 8.4 State AI Regulations (2025–2026)
-
-| Regulation | Scope | UAGC Relevance |
-|-----------|-------|---------------|
-| **Colorado AI Act (SB 24-205)** | Regulates "high-risk AI" including education contexts; requires impact assessments, disclosure, human oversight | If UAGC serves Colorado residents or operates in CO; applies to "consequential decisions" in education |
-| **Illinois BIPA (740 ILCS 14)** | Biometric information privacy; consent requirements for collection/use | Relevant if future tools collect biometric data (proctoring, identity verification); remote proctoring litigation precedent exists |
-| **US ED Final Priority (April 2026)** | Federal definitions and priorities for "advancing AI" in education | Signals federal policy direction; not binding regulation but may influence accreditor expectations |
-| **White House EO on AI Education (2025)** | Executive order framing AI education priorities | Policy context; may drive future DOE rulemaking |
-
-### 8.5 Accreditor Guidance on AI
-
-UAGC's accreditor (WSCUC) and peer accreditors are beginning to address AI:
-
-- **WSCUC** published "Artificial Intelligence in Accreditation Policy: Principles and Restrictions" (2024), focusing on confidentiality and integrity in peer review processes. While this addresses accreditation operations rather than institutional AI tools, it signals that WSCUC expects institutions to demonstrate responsible AI governance.
-- **HLC** and the Council of Regional Accrediting Commissions (C-RAC) issued a multi-accreditor statement encouraging accountable AI use in credit transfer and learning evaluation.
-- **NIST AI Risk Management Framework (AI RMF)** provides a voluntary governance/measurement framework increasingly referenced by higher ed compliance officers as a "reasonable baseline" for AI risk management.
-
-**Audit trail expectations for AI tools:** While no accreditor prescribes specific AI logging requirements, GLBA Safeguards, FERPA reasonable methods, and general IT audit standards converge on: logging all tool invocations with parameters and results, PII detection and redaction in logs, role-based access to logs, and retention consistent with institutional records schedules (typically 5–7 years for student-related records).
-
-### 8.6 AI-Specific Compliance Architecture
+### 8.3 AI-Specific Compliance Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -875,7 +695,7 @@ UAGC's accreditor (WSCUC) and peer accreditors are beginning to address AI:
                                 Legal hold
 ```
 
-### 8.7 Data Handling Rules
+### 8.4 Data Handling Rules
 
 | Data Category | Example | Storage | AI Model Training | Retention |
 |--------------|---------|---------|-------------------|-----------|
@@ -1118,9 +938,38 @@ UAGC WebMCP is a first step toward this vision.
 
 ---
 
-## 14. Conclusion
+## 14. Recommendation
 
-The agentic web is not coming — it is here. Chrome 146 shipped WebMCP support in February 2026, and Firefox 150 has landed its own implementation. AI agents are rapidly becoming an interface through which prospective students discover and evaluate universities.
+We recommend leadership approve the following:
+
+**Approve now:**
+1. A 60–90 day pilot of the UAGC WebMCP dual-layer architecture, limited to public-facing tools (program search, admissions steps, RFI submission, financial aid estimation).
+2. Deployment of AEO discovery files (`llms.txt`, `AGENTS.md`, `.well-known/webmcp`) on uagc.edu.
+3. Evaluation of Cloudflare AI Labyrinth and custom honeypot paths on isolated, non-production URLs.
+
+**Do not approve yet:**
+1. Any WebMCP tools that access student records, grades, or authenticated portal data (Phase 2 — requires FERPA school official designation and vendor agreements).
+2. Production-scale tarpit deployment beyond isolated honeypot paths (requires legal opinion and monitoring baseline).
+
+**Why this matters commercially:**
+- 78% of students enroll with the first institution that responds. Agent-assisted interactions provide sub-5-second response times.
+- No peer institution has deployed W3C WebMCP tools. The first-mover window is open.
+- Unauthorized AI scraping is extracting institutional content without attribution or reciprocal traffic. Active defense protects content value.
+
+**What success looks like after the pilot:**
+- >25% improvement in agent-driven RFI completion vs. form-only baseline
+- >95% tool invocation reliability
+- >70% of unauthorized crawlers trapped with poisoned or null data
+- Zero FERPA/CCPA compliance incidents
+- A clear go/no-go decision at Week 10 with defined exit criteria
+
+**Investment:** Phase 1 leverages existing infrastructure (program APIs, CMS, CDN). Incremental cost is primarily engineering time for tool registration and honeypot configuration — estimated at [to be scoped by engineering].
+
+---
+
+## 15. Conclusion
+
+The agentic web is arriving faster than most institutions have planned for. Chrome 146 shipped WebMCP support in February 2026, and Firefox 150 has landed its own implementation. AI agents are rapidly becoming an interface through which prospective students discover and evaluate universities.
 
 UAGC faces a choice: adapt proactively and shape how agents interact with its content, or wait and let agents — and unauthorized scrapers — define the terms of engagement.
 
@@ -1135,7 +984,7 @@ The 60–90-day pilot is scoped to answer three questions with minimal risk and 
 
 ---
 
-## 15. References
+## 16. References
 
 ### Specifications and Standards
 
