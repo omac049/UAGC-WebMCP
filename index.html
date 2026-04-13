@@ -367,7 +367,7 @@
 <section class="demo-section reveal" id="demo">
   <header class="demo-head">
     <h2>What a student actually sees</h2>
-    <p>A real enrollment conversation — and the structured tool calls powering it.</p>
+    <p>A full enrollment journey — from discovery through RFI submission — and the structured tool calls powering each step.</p>
   </header>
   <div class="demo-grid">
     <div class="demo-chat demo-panel">
@@ -377,6 +377,8 @@
         <div class="demo-msg demo-msg--agent" data-step="2"><strong>Agent</strong>I found 3 matching programs at UAGC:<ul class="mini-results"><li>M.Ed. in Curriculum — 36 credits, $330/cr</li><li>M.Ed. in Leadership — 36 credits, $330/cr</li><li>M.A. in Teaching — 30 credits, $345/cr</li></ul></div>
         <div class="demo-msg demo-msg--student" data-step="3"><strong>Student</strong>What about financial aid for the M.Ed.?</div>
         <div class="demo-msg demo-msg--agent" data-step="4"><strong>Agent</strong>Based on full-time enrollment, estimated aid covers 40–60% of tuition. Want me to request more info?</div>
+        <div class="demo-msg demo-msg--student" data-step="5"><strong>Student</strong>Yes, go ahead</div>
+        <div class="demo-msg demo-msg--agent" data-step="6"><strong>Agent</strong>Done — your browser asked you to confirm before sharing your contact info. Request submitted.<br><span style="display:inline-block;margin-top:0.35rem;padding:0.3rem 0.55rem;background:rgba(13,148,136,0.1);border-radius:6px;font-size:0.78rem;font-family:ui-monospace,Menlo,monospace;color:#0d9488">Ref #UAGC-2026-04821</span><br><span style="font-size:0.8rem;color:var(--muted)">An enrollment advisor will reach out within 24 hours.</span></div>
       </div>
     </div>
     <div class="demo-tools demo-panel">
@@ -385,7 +387,8 @@
         <div class="demo-tool" data-step="1"><span class="t-fn">searchPrograms</span>({ <span class="t-key">keyword</span>: <span class="t-str">"education"</span>, <span class="t-key">level</span>: <span class="t-str">"master"</span>, <span class="t-key">modality</span>: <span class="t-str">"online"</span> })</div>
         <div class="demo-tool" data-step="2"><span class="t-fn">getProgramDetails</span>({ <span class="t-key">programId</span>: <span class="t-str">"med-001"</span> })</div>
         <div class="demo-tool" data-step="3"><span class="t-fn">getFinancialAidEstimate</span>({ <span class="t-key">programId</span>: <span class="t-str">"med-001"</span>, <span class="t-key">enrollmentStatus</span>: <span class="t-str">"full-time"</span> })</div>
-        <div class="demo-tool" data-step="4"><span class="t-fn">submitRFI</span>({ <span class="t-key">firstName</span>: <span class="t-str">"Maria"</span>, <span class="t-key">email</span>: <span class="t-str">"..."</span>, <span class="t-key">programInterest</span>: <span class="t-str">"med-001"</span> })<div class="demo-consent"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" stroke="#a78bfa" stroke-width="1.5"/><path d="M4 8 L7 11 L12 5" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Browser consent required</div></div>
+        <div class="demo-tool" data-step="5"><span class="t-fn">submitRFI</span>({ <span class="t-key">firstName</span>: <span class="t-str">"Maria"</span>, <span class="t-key">email</span>: <span class="t-str">"maria.r@gmail.com"</span>, <span class="t-key">programInterest</span>: <span class="t-str">"med-001"</span> })<div class="demo-consent"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" stroke="#a78bfa" stroke-width="1.5"/><path d="M4 8 L7 11 L12 5" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Browser consent granted</div></div>
+        <div class="demo-tool" data-step="6" style="border-left-color:#16a34a;opacity:0.4"><span style="color:#16a34a">Response</span> { <span class="t-key">status</span>: <span class="t-str">"confirmed"</span>, <span class="t-key">refNumber</span>: <span class="t-str">"UAGC-2026-04821"</span>, <span class="t-key">followUp</span>: <span class="t-str">"24h"</span> }</div>
       </div>
     </div>
   </div>
@@ -624,7 +627,7 @@
             setTimeout(function () {
               m.classList.add('is-visible');
               setStep(parseInt(m.dataset.step));
-            }, 1200 * (i + 1));
+            }, 1000 * (i + 1));
           });
         }
       });
