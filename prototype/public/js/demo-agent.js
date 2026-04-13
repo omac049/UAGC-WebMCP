@@ -1,78 +1,64 @@
 (function () {
-  const mc = navigator.modelContext;
+  var mc = navigator.modelContext;
   if (!mc || typeof mc.invokeTool !== 'function') {
     console.error('demo-agent: navigator.modelContext.invokeTool is not available');
     return;
   }
 
-  const chatLog = document.getElementById('chat-log');
-  const chatForm = document.getElementById('chat-form');
-  const chatInput = document.getElementById('chat-input');
-  const inspectorLog = document.getElementById('inspector-log');
-  const typingRow = document.getElementById('typing-row');
+  var chatLog = document.getElementById('chat-log');
+  var chatForm = document.getElementById('chat-form');
+  var chatInput = document.getElementById('chat-input');
+  var inspectorLog = document.getElementById('inspector-log');
+  var typingRow = document.getElementById('typing-row');
 
   if (!chatLog || !chatForm || !chatInput || !inspectorLog) {
     console.error('demo-agent: missing required DOM nodes');
     return;
   }
 
-  const context = {
+  /* ---- Conversation memory ---- */
+
+  var ctx = {
     lastProgramId: null,
     lastProgramName: null,
+    lastProgramLevel: null,
     lastSearchKeyword: null,
-    rfi: null
+    lastSearchResults: [],
+    rfi: null,
+    turnCount: 0
   };
 
-  const origInvoke = mc.invokeTool.bind(mc);
-  mc.invokeTool = async function instrumentedInvokeTool(name, params) {
-    const started = performance.now();
-    const ts = new Date();
-    try {
-      const result = await origInvoke(name, params);
-      const durationMs = Math.round(performance.now() - started);
-      appendInspectorCard({
-        ok: true,
-        name,
-        params,
-        response: result,
-        durationMs,
-        ts
-      });
+  /* ---- Instrument invokeTool for the inspector ---- */
+
+  var origInvoke = mc.invokeTool.bind(mc);
+  mc.invokeTool = function instrumentedInvokeTool(name, params) {
+    var started = performance.now();
+    var ts = new Date();
+    return origInvoke(name, params).then(function (result) {
+      appendInspectorCard({ ok: true, name: name, params: params, response: result, durationMs: Math.round(performance.now() - started), ts: ts });
       return result;
-    } catch (err) {
-      const durationMs = Math.round(performance.now() - started);
-      appendInspectorCard({
-        ok: false,
-        name,
-        params,
-        response: { error: err && err.message ? err.message : String(err) },
-        durationMs,
-        ts
-      });
+    }).catch(function (err) {
+      appendInspectorCard({ ok: false, name: name, params: params, response: { error: err && err.message ? err.message : String(err) }, durationMs: Math.round(performance.now() - started), ts: ts });
       throw err;
-    }
+    });
   };
+
+  /* ---- DOM helpers ---- */
 
   function scrollChatToBottom() {
-    const wrap = chatLog.closest('.chat-scroll');
-    if (wrap) {
-      wrap.scrollTop = wrap.scrollHeight;
-    }
+    var wrap = chatLog.closest('.chat-scroll');
+    if (wrap) wrap.scrollTop = wrap.scrollHeight;
   }
 
-  function escapeHtml(s) {
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   function appendMessage(role, html) {
-    const row = document.createElement('div');
-    row.className = `chat-row chat-row--${role}`;
-    const bubble = document.createElement('div');
-    bubble.className = `chat-bubble chat-bubble--${role}`;
+    var row = document.createElement('div');
+    row.className = 'chat-row chat-row--' + role;
+    var bubble = document.createElement('div');
+    bubble.className = 'chat-bubble chat-bubble--' + role;
     bubble.innerHTML = html;
     row.appendChild(bubble);
     chatLog.appendChild(row);
@@ -84,291 +70,322 @@
     scrollChatToBottom();
   }
 
-  function appendInspectorCard({ ok, name, params, response, durationMs, ts }) {
-    const card = document.createElement('article');
-    card.className = `inspector-card inspector-card--${ok ? 'ok' : 'err'}`;
-    const timeStr = ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    card.innerHTML = `
-      <header class="inspector-card__head">
-        <span class="inspector-card__name">${escapeHtml(name)}</span>
-        <span class="inspector-card__meta">${escapeHtml(timeStr)} · ${durationMs} ms</span>
-      </header>
-      <div class="inspector-card__block">
-        <div class="inspector-card__label">Parameters</div>
-        <pre class="inspector-card__pre">${escapeHtml(JSON.stringify(params ?? {}, null, 2))}</pre>
-      </div>
-      <div class="inspector-card__block">
-        <div class="inspector-card__label">Response</div>
-        <pre class="inspector-card__pre">${escapeHtml(JSON.stringify(response ?? {}, null, 2))}</pre>
-      </div>
-    `;
+  function appendInspectorCard(o) {
+    var card = document.createElement('article');
+    card.className = 'inspector-card inspector-card--' + (o.ok ? 'ok' : 'err');
+    var timeStr = o.ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    card.innerHTML =
+      '<header class="inspector-card__head"><span class="inspector-card__name">' + esc(o.name) + '</span><span class="inspector-card__meta">' + esc(timeStr) + ' · ' + o.durationMs + ' ms</span></header>' +
+      '<div class="inspector-card__block"><div class="inspector-card__label">Parameters</div><pre class="inspector-card__pre">' + esc(JSON.stringify(o.params || {}, null, 2)) + '</pre></div>' +
+      '<div class="inspector-card__block"><div class="inspector-card__label">Response</div><pre class="inspector-card__pre">' + esc(JSON.stringify(o.response || {}, null, 2)) + '</pre></div>';
     inspectorLog.prepend(card);
   }
 
-  const PROGRAM_ID_RE = /\b([a-z]{2,5}-[a-z0-9-]{3,})\b/i;
+  /* ---- NLP-lite extraction ---- */
 
-  function extractProgramId(text) {
-    const m = text.match(PROGRAM_ID_RE);
-    return m ? m[1].toLowerCase() : null;
-  }
+  function lower(s) { return (s || '').toLowerCase(); }
 
-  function extractKeywordFromSearch(text) {
-    const t = text.toLowerCase();
-    const about = t.match(
-      /\b(?:about|for|in|related to)\s+([a-z0-9][a-z0-9\s]{1,40})/i
-    );
-    if (about) return about[1].trim();
-    const find = t.match(/find\s+(?:programs?\s+)?(?:about|for)?\s*([a-z0-9][a-z0-9\s]{1,40})/i);
-    if (find) return find[1].trim();
-    const prog = t.match(/programs?\s+(?:about|for|in)\s+([a-z0-9][a-z0-9\s]{1,40})/i);
-    if (prog) return prog[1].trim();
-    return null;
-  }
-
-  function inferProgramLevel(text) {
-    const t = text.toLowerCase();
-    if (/\b(master|graduate|grad|m\.?ed|mba|ms|ma)\b/.test(t)) return 'master';
-    if (/\b(bachelor|undergrad|bs|ba|b\.?s)\b/.test(t)) return 'bachelor';
-    if (/\b(associate|aa|as)\b/.test(t)) return 'associate';
-    if (/\b(doctor|phd|edd|doctoral)\b/.test(t)) return 'doctorate';
+  function inferLevel(text) {
+    var t = lower(text);
+    if (/\b(master'?s?|graduate|grad|m\.?ed|mba|m\.?s\.?|m\.?a\.?)\b/.test(t)) return 'master';
+    if (/\b(bachelor'?s?|undergrad|b\.?s\.?|b\.?a\.?)\b/.test(t)) return 'bachelor';
+    if (/\b(associate'?s?|a\.?a\.?|a\.?s\.?)\b/.test(t)) return 'associate';
+    if (/\b(doctor|phd|edd|doctoral|doctorate)\b/.test(t)) return 'doctorate';
     if (/\b(certificate|cert)\b/.test(t)) return 'certificate';
     return null;
   }
 
-  function detectIntent(raw) {
-    const text = raw.trim();
-    const lower = text.toLowerCase();
+  function inferModality(text) {
+    var t = lower(text);
+    if (/\bonline\b/.test(t)) return 'online';
+    if (/\bhybrid\b/.test(t)) return 'hybrid';
+    if (/\b(on[- ]?campus|in[- ]?person)\b/.test(t)) return 'on-campus';
+    return null;
+  }
 
+  var STOP_WORDS = /\b(find|me|an?|the|some|any|about|for|in|on|to|my|your|their|i|we|you|do|does|can|could|would|should|want|need|looking|search|show|get|give|tell|what|which|where|how|please|program|programs|degree|degrees|course|courses|class|classes|affordable|cheap|best|top|good|great)\b/gi;
+
+  function extractTopic(text) {
+    var t = lower(text);
+    t = t.replace(/\b(master'?s?|bachelor'?s?|associate'?s?|doctorate?|doctoral|certificate|cert|graduate|undergrad|online|hybrid|on[- ]?campus|in[- ]?person)\b/g, '');
+    t = t.replace(STOP_WORDS, '');
+    t = t.replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+    return t || null;
+  }
+
+  var PROGRAM_ID_RE = /\b([a-z]{2,5}-[a-z0-9-]{2,})\b/i;
+
+  function extractProgramId(text) {
+    var m = text.match(PROGRAM_ID_RE);
+    return m ? m[1].toLowerCase() : null;
+  }
+
+  function resolveLevel(text) {
+    return inferLevel(text) || ctx.lastProgramLevel || null;
+  }
+
+  /* ---- Intent classification ---- */
+
+  function detectIntent(raw) {
+    var text = raw.trim();
+    var t = lower(text);
     if (!text) return { type: 'empty' };
 
-    if (
-      /^\s*help\s*$/i.test(text) ||
-      /\b(what tools|list tools|available tools|help me|\/help)\b/.test(lower)
-    ) {
+    if (/^\s*help\s*$/i.test(text) || /\b(what tools|list tools|available tools|help me|\/help)\b/.test(t)) {
       return { type: 'help_tools' };
     }
 
-    if (context.rfi && context.rfi.active) {
-      return { type: 'rfi_answer', text };
+    if (ctx.rfi && ctx.rfi.active) {
+      return { type: 'rfi_answer', text: text };
     }
 
-    if (
-      /\b(request info|rfi|sign me up|sign up|contact me|lead form|more information|get in touch)\b/.test(lower)
-    ) {
+    if (/\b(request info|rfi|sign me up|sign up|contact me|lead form|more information|get in touch|reach out|send.{0,10}info)\b/.test(t)) {
       return { type: 'rfi_start' };
     }
 
-    if (/\b(financial aid|faFSA|scholarship|tuition|how much|cost|net cost|aid estimate)\b/.test(lower)) {
-      return { type: 'financial_aid', text };
+    if (/\b(financial aid|fafsa|scholarship|tuition|how much|cost|net cost|aid estimate|afford|price|pricing|pay)\b/.test(t)) {
+      return { type: 'financial_aid', text: text };
     }
 
-    if (/\b(how do i apply|admissions steps|application steps|apply|enroll)\b/.test(lower)) {
-      return { type: 'admissions', text };
+    if (/\b(how.{0,8}appl|admission|enroll|apply|application|getting.{0,5}start|next.{0,5}step|sign.{0,3}up.{0,5}class)\b/.test(t)) {
+      return { type: 'admissions', text: text };
     }
 
-    if (/\b(find|search|browse)\b.*\bprogram/.test(lower) || /\bprograms?\s+(about|for|in)\b/.test(lower)) {
-      const keyword = extractKeywordFromSearch(text) || text.replace(/^.*?\b(programs?|find|search)\b/gi, '').trim();
-      return { type: 'search', keyword: keyword || 'education' };
+    if (extractProgramId(text)) {
+      return { type: 'program_detail', text: text };
     }
 
-    if (
-      /\b(tell me about|details on|more about|describe|overview of|what is)\b/.test(lower) ||
-      extractProgramId(text)
-    ) {
-      return { type: 'program_detail', text };
+    if (/\b(tell me (more )?about|details? (on|about|for)|more about|describe|overview|what is|info (on|about))\b/.test(t)) {
+      var hasTopic = extractTopic(text);
+      if (hasTopic && hasTopic.length > 2) {
+        return { type: 'program_detail', text: text };
+      }
+      if (ctx.lastProgramId) {
+        return { type: 'program_detail', text: text };
+      }
+      return { type: 'search', text: text };
     }
 
-    if (/\bprogram/.test(lower) && text.length < 80) {
-      return { type: 'search', keyword: extractKeywordFromSearch(text) || 'program' };
+    var topic = extractTopic(text);
+    var level = inferLevel(text);
+    var hasSearchSignal = /\b(find|search|browse|look|show|explore|list|what|which|any|recommend)\b/.test(t);
+    var hasProgramWord = /\b(program|degree|course|major|class|master|bachelor|associate|certificate|education|business|it|health|data|leadership|teaching)\b/.test(t);
+
+    if (hasSearchSignal || hasProgramWord || level) {
+      return { type: 'search', text: text, topic: topic, level: level, modality: inferModality(text) };
     }
 
-    return { type: 'fallback', text };
+    if (/\b(thank|thanks|ok|okay|cool|great|got it)\b/.test(t)) {
+      return { type: 'acknowledge' };
+    }
+
+    if (/\b(hi|hello|hey|greetings|good morning|good afternoon)\b/.test(t)) {
+      return { type: 'greeting' };
+    }
+
+    if (topic && topic.length >= 3) {
+      return { type: 'search', text: text, topic: topic };
+    }
+
+    return { type: 'fallback', text: text };
   }
 
-  function formatProgramList(data) {
-    const programs = Array.isArray(data.programs) ? data.programs : [];
+  /* ---- Response formatters ---- */
+
+  function fmtMoney(n) {
+    var x = Number(n);
+    if (!isFinite(x)) return '—';
+    return '$' + x.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function fmtProgramList(data, query) {
+    var programs = Array.isArray(data.programs) ? data.programs : [];
     if (!programs.length) {
-      return '<p>No programs matched that search. Try another keyword like <strong>education</strong> or <strong>business</strong>.</p>';
+      return '<p>I didn\'t find programs matching that. Try a broader term like <strong>education</strong>, <strong>business</strong>, or <strong>technology</strong>.</p>';
     }
-    const items = programs
-      .map(
-        (p) =>
-          `<li><strong>${escapeHtml(p.name)}</strong> <span class="muted">(${escapeHtml(
-            p.level
-          )}, ${escapeHtml(p.modality)})</span><br/><span class="muted">id:</span> <code>${escapeHtml(
-            p.id
-          )}</code></li>`
-      )
-      .join('');
-    return `<p>Here is what I found:</p><ul class="agent-list">${items}</ul>`;
+    var intro = query
+      ? '<p>Here\'s what I found for <strong>' + esc(query) + '</strong>:</p>'
+      : '<p>Here\'s what I found:</p>';
+    var items = programs.map(function (p) {
+      return '<li><strong>' + esc(p.name) + '</strong> <span class="muted">(' + esc(p.level) + ', ' + esc(p.modality) + ')</span><br/>' +
+        '<span class="muted">Say</span> <code>' + esc(p.id) + '</code> <span class="muted">for details</span></li>';
+    }).join('');
+    var tip = programs.length === 1
+      ? '<p class="muted">Want details? Just say <strong>tell me about ' + esc(programs[0].id) + '</strong> or <strong>tell me more</strong>.</p>'
+      : '<p class="muted">Say a program ID like <strong>' + esc(programs[0].id) + '</strong> to see details, admissions requirements, and estimated cost.</p>';
+    return intro + '<ul class="agent-list">' + items + '</ul>' + tip;
   }
 
-  function formatProgramDetail(p) {
-    const outcomes = Array.isArray(p.outcomes)
-      ? `<p><strong>Outcomes</strong></p><ul class="agent-list">${p.outcomes
-          .map((o) => `<li>${escapeHtml(o)}</li>`)
-          .join('')}</ul>`
+  function fmtProgramDetail(p) {
+    var total = (Number(p.credits) || 0) * (Number(p.costPerCredit) || 0);
+    var outcomes = Array.isArray(p.outcomes)
+      ? '<p><strong>What you\'ll learn</strong></p><ul class="agent-list">' + p.outcomes.map(function (o) { return '<li>' + esc(o) + '</li>'; }).join('') + '</ul>'
       : '';
-    const reqs = Array.isArray(p.requirements)
-      ? `<p><strong>Requirements</strong></p><ul class="agent-list">${p.requirements
-          .map((r) => `<li>${escapeHtml(r)}</li>`)
-          .join('')}</ul>`
+    var reqs = Array.isArray(p.requirements)
+      ? '<p><strong>To get in, you\'ll need</strong></p><ul class="agent-list">' + p.requirements.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>'
       : '';
-    return `
-      <p><strong>${escapeHtml(p.name)}</strong> <span class="muted">(${escapeHtml(p.level)}, ${escapeHtml(
-      p.modality
-    )})</span></p>
-      <p>${escapeHtml(p.description || '')}</p>
-      ${outcomes}
-      ${reqs}
-      <p class="muted">Credits: ${escapeHtml(String(p.credits))} · Cost/credit: $${escapeHtml(
-      String(p.costPerCredit)
-    )}</p>
-    `;
+    return '<p><strong>' + esc(p.name) + '</strong> <span class="muted">(' + esc(p.level) + ', ' + esc(p.modality) + ')</span></p>' +
+      '<p>' + esc(p.description || '') + '</p>' +
+      '<p><strong>Estimated cost:</strong> ' + fmtMoney(total) + ' <span class="muted">(' + p.credits + ' credits × ' + fmtMoney(p.costPerCredit) + '/credit)</span></p>' +
+      outcomes + reqs +
+      '<p class="muted">You can ask me for <strong>financial aid estimate</strong>, <strong>how to apply</strong>, or <strong>request info</strong> for this program.</p>';
   }
 
-  function formatAdmissions(steps) {
+  function fmtAdmissions(steps, level) {
     if (!Array.isArray(steps) || !steps.length) {
-      return '<p>No admissions steps were returned for that combination.</p>';
+      return '<p>I couldn\'t find admissions steps for that combination. Try specifying a level like <strong>master\'s</strong> or <strong>bachelor\'s</strong>.</p>';
     }
-    const items = steps
-      .map(
-        (s) =>
-          `<li><strong>${escapeHtml(s.title)}</strong> — ${escapeHtml(
-            s.description || ''
-          )}</li>`
-      )
-      .join('');
-    return `<p>Here is a clear path to apply:</p><ol class="agent-steps">${items}</ol>`;
+    var intro = level
+      ? '<p>Here\'s the enrollment path for <strong>' + esc(level) + '</strong>-level programs:</p>'
+      : '<p>Here\'s how to apply:</p>';
+    var items = steps.map(function (s) {
+      return '<li><strong>' + esc(s.title) + '</strong> — ' + esc(s.description || '') + '</li>';
+    }).join('');
+    return intro + '<ol class="agent-steps">' + items + '</ol>' +
+      '<p class="muted">Ready to take the first step? Say <strong>request info</strong> and I\'ll walk you through it.</p>';
   }
 
-  function formatFinancialAid(data) {
-    const aid = data.estimatedAid || {};
-    const net = data.netCost || {};
-    const scholarships = Array.isArray(data.availableScholarships) ? data.availableScholarships : [];
-    const scholList = scholarships.length
-      ? `<ul class="agent-list">${scholarships.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ul>`
-      : '<p class="muted">No named scholarships in this band.</p>';
-    const next = Array.isArray(data.nextSteps)
-      ? `<p><strong>Next steps</strong></p><ol class="agent-steps">${data.nextSteps
-          .map((s) => `<li>${escapeHtml(s)}</li>`)
-          .join('')}</ol>`
+  function fmtFinancialAid(data) {
+    var aid = data.estimatedAid || {};
+    var net = data.netCost || {};
+    var scholarships = Array.isArray(data.availableScholarships) ? data.availableScholarships : [];
+    var scholList = scholarships.length
+      ? '<ul class="agent-list">' + scholarships.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>'
       : '';
-    return `
-      <p><strong>${escapeHtml(data.programName || 'Program')}</strong></p>
-      <p>Estimated tuition: <strong>$${escapeHtml(String(data.tuition))}</strong></p>
-      <p>Estimated aid range: <strong>$${escapeHtml(String(aid.min))}</strong> – <strong>$${escapeHtml(
-      String(aid.max)
-    )}</strong></p>
-      <p>Estimated net cost: <strong>$${escapeHtml(String(net.min))}</strong> – <strong>$${escapeHtml(
-      String(net.max)
-    )}</strong></p>
-      <p><strong>Scholarships to explore</strong></p>
-      ${scholList}
-      ${next}
-    `;
+    var next = Array.isArray(data.nextSteps)
+      ? '<p><strong>Your next steps</strong></p><ol class="agent-steps">' + data.nextSteps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>'
+      : '';
+    return '<p><strong>' + esc(data.programName || 'Program') + '</strong></p>' +
+      '<p>Estimated tuition: <strong>' + fmtMoney(data.tuition) + '</strong></p>' +
+      '<p>Estimated aid: <strong>' + fmtMoney(aid.min) + '</strong> – <strong>' + fmtMoney(aid.max) + '</strong></p>' +
+      '<p>Your estimated net cost: <strong>' + fmtMoney(net.min) + '</strong> – <strong>' + fmtMoney(net.max) + '</strong></p>' +
+      (scholarships.length ? '<p><strong>Scholarships to explore</strong></p>' + scholList : '') +
+      next;
   }
 
-  function formatToolsList() {
-    const tools = mc.getTools();
-    if (!tools.length) {
-      return '<p>No tools are registered on this page.</p>';
-    }
-    const items = tools
-      .map(
-        (t) =>
-          `<li><strong>${escapeHtml(t.name)}</strong> — ${escapeHtml(t.description || '')} <span class="muted">(risk: ${escapeHtml(
-            (t.annotations && t.annotations.riskLevel) || 'n/a'
-          )})</span></li>`
-      )
-      .join('');
-    return `<p>I can call these WebMCP tools (with your consent when needed):</p><ul class="agent-list">${items}</ul>`;
+  function fmtToolsList() {
+    var tools = mc.getTools();
+    if (!tools.length) return '<p>No tools registered on this page.</p>';
+    var items = tools.map(function (t) {
+      return '<li><strong>' + esc(t.name) + '</strong> — ' + esc(t.description || '') + '</li>';
+    }).join('');
+    return '<p>I can call these WebMCP tools:</p><ul class="agent-list">' + items + '</ul>';
   }
+
+  /* ---- RFI guided flow ---- */
 
   function startRfiFlow() {
-    context.rfi = {
+    ctx.rfi = {
       active: true,
       step: 'firstName',
-      data: { firstName: '', lastName: '', email: '', phone: '', programInterest: '' }
+      data: {
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        programInterest: ctx.lastProgramId || ''
+      }
     };
-    return '<p>Great — I can submit a request for information. Share your <strong>first name</strong> to begin.</p>';
+    var prefill = ctx.lastProgramName
+      ? '<p class="muted">I\'ll pre-fill your program interest as <strong>' + esc(ctx.lastProgramName) + '</strong> — you can change it later.</p>'
+      : '';
+    return '<p>I\'ll walk you through a quick request-for-information form. What\'s your <strong>first name</strong>?</p>' + prefill;
   }
 
-  function rfiPromptForStep(step) {
-    const prompts = {
-      lastName: '<p>Thanks. What is your <strong>last name</strong>?</p>',
-      email: '<p>What <strong>email address</strong> should we use?</p>',
-      phone:
-        '<p>Optionally share a <strong>phone number</strong> (or type <strong>skip</strong> to leave it blank).</p>',
-      programInterest:
-        '<p>Which <strong>program or topic</strong> are you most interested in? You can paste a program name or id.</p>'
-    };
-    return prompts[step] || '<p>Tell me a bit more so I can continue.</p>';
+  var RFI_PROMPTS = {
+    lastName: '<p>And your <strong>last name</strong>?</p>',
+    email: '<p>What\'s the best <strong>email</strong> to reach you?</p>',
+    phone: '<p>A <strong>phone number</strong>? (say <strong>skip</strong> if you\'d rather not)</p>',
+    programInterest: null
+  };
+
+  function rfiPromptForProgram() {
+    if (ctx.rfi.data.programInterest) {
+      return '<p>I have <strong>' + esc(ctx.lastProgramName || ctx.rfi.data.programInterest) + '</strong> as your program interest. Say <strong>yes</strong> to confirm or type a different program name.</p>';
+    }
+    return '<p>Which <strong>program</strong> are you most interested in? You can paste a name or ID.</p>';
   }
 
-  async function handleRfiAnswer(text) {
-    const rfi = context.rfi;
-    if (!rfi || !rfi.active) return '';
-
-    const val = text.trim();
-    const { data } = rfi;
+  function handleRfiAnswer(text) {
+    var rfi = ctx.rfi;
+    if (!rfi || !rfi.active) return Promise.resolve('');
+    var val = text.trim();
+    var d = rfi.data;
 
     if (rfi.step === 'firstName') {
-      data.firstName = val;
+      d.firstName = val;
       rfi.step = 'lastName';
-      return rfiPromptForStep('lastName');
+      return Promise.resolve(RFI_PROMPTS.lastName);
     }
     if (rfi.step === 'lastName') {
-      data.lastName = val;
+      d.lastName = val;
       rfi.step = 'email';
-      return rfiPromptForStep('email');
+      return Promise.resolve(RFI_PROMPTS.email);
     }
     if (rfi.step === 'email') {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-        return '<p>That email does not look valid yet. Could you double-check it?</p>';
+        return Promise.resolve('<p>That doesn\'t look like a valid email. Mind double-checking?</p>');
       }
-      data.email = val;
+      d.email = val;
       rfi.step = 'phone';
-      return rfiPromptForStep('phone');
+      return Promise.resolve(RFI_PROMPTS.phone);
     }
     if (rfi.step === 'phone') {
-      data.phone = val.toLowerCase() === 'skip' ? '' : val;
+      d.phone = lower(val) === 'skip' ? '' : val;
       rfi.step = 'programInterest';
-      return rfiPromptForStep('programInterest');
+      return Promise.resolve(rfiPromptForProgram());
     }
     if (rfi.step === 'programInterest') {
-      data.programInterest = val;
-      const payload = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phone: data.phone || undefined,
-        programInterest: data.programInterest
+      if (/^(yes|yep|yeah|y|confirm|correct|that'?s? (right|correct|it))$/i.test(val) && d.programInterest) {
+        // keep existing
+      } else {
+        d.programInterest = val;
+      }
+      var payload = {
+        firstName: d.firstName,
+        lastName: d.lastName,
+        email: d.email,
+        phone: d.phone || undefined,
+        programInterest: d.programInterest
       };
-      const res = await mc.invokeTool('submitRFI', payload);
-      context.rfi = null;
-      return `<p>Your request is in. Reference <strong>${escapeHtml(
-        res.refNumber
-      )}</strong> — status <strong>${escapeHtml(res.status)}</strong>. Typical follow-up: <strong>${escapeHtml(
-        res.followUp
-      )}</strong>.</p>`;
+      return mc.invokeTool('submitRFI', payload).then(function (res) {
+        ctx.rfi = null;
+        return '<p>All set! Your reference number is <strong>' + esc(res.refNumber) + '</strong>.</p>' +
+          '<p>Status: <strong>' + esc(res.status) + '</strong>. An advisor will follow up within <strong>' + esc(res.followUp) + '</strong>.</p>';
+      });
     }
-    return '';
+    return Promise.resolve('');
   }
 
-  async function handleUserMessage(raw) {
-    const intent = detectIntent(raw);
+  /* ---- Main handler ---- */
+
+  function handleUserMessage(raw) {
+    ctx.turnCount++;
+    var intent = detectIntent(raw);
 
     if (intent.type === 'empty') {
-      return '<p>Try asking me to find programs, explain costs, outline admissions, or request information.</p>';
+      return Promise.resolve('<p>Go ahead — ask me about programs, costs, admissions, or say <strong>request info</strong> to get started.</p>');
+    }
+
+    if (intent.type === 'greeting') {
+      return Promise.resolve('<p>Hi there! I can help you explore programs, check admissions steps, estimate financial aid, or submit a request for information. What are you looking for?</p>');
+    }
+
+    if (intent.type === 'acknowledge') {
+      var hints = [];
+      if (!ctx.lastProgramId) hints.push('search for a program');
+      if (ctx.lastProgramId && !ctx.lastProgramLevel) hints.push('ask how to apply');
+      if (ctx.lastProgramId) hints.push('get a financial aid estimate');
+      hints.push('request information');
+      return Promise.resolve('<p>Glad to help! Want to ' + hints.join(', ') + '?</p>');
     }
 
     if (intent.type === 'help_tools') {
-      return formatToolsList();
+      return Promise.resolve(fmtToolsList());
     }
 
     if (intent.type === 'rfi_start') {
-      return startRfiFlow();
+      return Promise.resolve(startRfiFlow());
     }
 
     if (intent.type === 'rfi_answer') {
@@ -376,88 +393,122 @@
     }
 
     if (intent.type === 'search') {
-      const keyword = intent.keyword || 'education';
-      context.lastSearchKeyword = keyword;
-      const data = await mc.invokeTool('searchPrograms', { keyword });
-      if (Array.isArray(data.programs) && data.programs[0]) {
-        context.lastProgramId = data.programs[0].id;
-        context.lastProgramName = data.programs[0].name;
-      }
-      return formatProgramList(data);
+      var keyword = intent.topic || extractTopic(intent.text || raw) || ctx.lastSearchKeyword || 'education';
+      var level = intent.level || inferLevel(raw);
+      var modality = intent.modality || inferModality(raw);
+      ctx.lastSearchKeyword = keyword;
+      if (level) ctx.lastProgramLevel = level;
+
+      return mc.invokeTool('searchPrograms', { keyword: keyword }).then(function (data) {
+        var programs = Array.isArray(data.programs) ? data.programs : [];
+
+        if (level || modality) {
+          programs = programs.filter(function (p) {
+            if (level && p.level !== level) return false;
+            if (modality && p.modality !== modality) return false;
+            return true;
+          });
+        }
+
+        if (programs.length > 0) {
+          ctx.lastProgramId = programs[0].id;
+          ctx.lastProgramName = programs[0].name;
+          ctx.lastProgramLevel = programs[0].level;
+          ctx.lastSearchResults = programs;
+        }
+
+        var filtered = { programs: programs };
+        var qualifier = [level, modality, keyword].filter(Boolean).join(' ');
+        return fmtProgramList(filtered, qualifier);
+      });
     }
 
     if (intent.type === 'program_detail') {
-      let programId = extractProgramId(intent.text);
-      if (!programId && context.lastProgramId) {
-        programId = context.lastProgramId;
-      }
+      var programId = extractProgramId(intent.text);
+
       if (!programId) {
-        return '<p>I need a program id (for example <code>med-curriculum</code>) or search for a program first.</p>';
+        var topic = extractTopic(intent.text);
+        if (topic && ctx.lastSearchResults.length) {
+          var match = ctx.lastSearchResults.find(function (p) {
+            return lower(p.name).indexOf(lower(topic)) !== -1 || lower(p.id).indexOf(lower(topic)) !== -1;
+          });
+          if (match) programId = match.id;
+        }
       }
-      const p = await mc.invokeTool('getProgramDetails', { programId });
-      context.lastProgramId = p.id || programId;
-      context.lastProgramName = p.name || context.lastProgramName;
-      return formatProgramDetail(p);
+
+      if (!programId && ctx.lastProgramId) {
+        programId = ctx.lastProgramId;
+      }
+
+      if (!programId) {
+        return Promise.resolve('<p>Which program would you like details on? Try searching first — say <strong>find programs about education</strong>.</p>');
+      }
+
+      return mc.invokeTool('getProgramDetails', { programId: programId }).then(function (p) {
+        ctx.lastProgramId = p.id || programId;
+        ctx.lastProgramName = p.name || ctx.lastProgramName;
+        ctx.lastProgramLevel = p.level || ctx.lastProgramLevel;
+        return fmtProgramDetail(p);
+      });
     }
 
     if (intent.type === 'admissions') {
-      const level =
-        inferProgramLevel(intent.text) ||
-        inferProgramLevel(context.lastProgramName || '') ||
-        (context.lastProgramId && context.lastProgramId.includes('bs-')
-          ? 'bachelor'
-          : context.lastProgramId && context.lastProgramId.includes('med-')
-            ? 'master'
-            : null) ||
-        'bachelor';
-      const studentType = /\btransfer\b/i.test(intent.text) ? 'transfer' : 'new';
-      const data = await mc.invokeTool('getAdmissionsSteps', { programLevel: level, studentType });
-      return formatAdmissions(data.steps);
+      var level = inferLevel(intent.text) || ctx.lastProgramLevel || 'bachelor';
+      var studentType = /\btransfer\b/i.test(intent.text) ? 'transfer' : /\breturn/i.test(intent.text) ? 'returning' : 'new';
+      ctx.lastProgramLevel = level;
+
+      return mc.invokeTool('getAdmissionsSteps', { programLevel: level, studentType: studentType }).then(function (data) {
+        return fmtAdmissions(data.steps, level);
+      });
     }
 
     if (intent.type === 'financial_aid') {
-      let programId = extractProgramId(intent.text) || context.lastProgramId;
+      var programId = extractProgramId(intent.text) || ctx.lastProgramId;
       if (!programId) {
-        return '<p>Tell me which program to price (paste an id like <code>bs-business</code>) or search for a program first.</p>';
+        return Promise.resolve('<p>I need a program first to estimate aid. Try <strong>find programs about education</strong> then ask about costs.</p>');
       }
-      let enrollmentStatus = 'full-time';
+      var enrollmentStatus = 'full-time';
       if (/\bhalf[-\s]?time\b/i.test(intent.text)) enrollmentStatus = 'half-time';
       if (/\bless than half\b/i.test(intent.text)) enrollmentStatus = 'less-than-half';
-      const data = await mc.invokeTool('getFinancialAidEstimate', { programId, enrollmentStatus });
-      return formatFinancialAid(data);
+
+      return mc.invokeTool('getFinancialAidEstimate', { programId: programId, enrollmentStatus: enrollmentStatus }).then(function (data) {
+        return fmtFinancialAid(data);
+      });
     }
 
-    return `<p>I am a lightweight demo agent (keyword rules, not an LLM). Try:</p>
-      <ul class="agent-list">
-        <li><strong>Find programs about education</strong></li>
-        <li><strong>Tell me about med-curriculum</strong></li>
-        <li><strong>How do I apply</strong> (I will use your last program level when possible)</li>
-        <li><strong>Financial aid estimate</strong> after you pick a program</li>
-        <li><strong>I want to request info</strong> for a guided form</li>
-      </ul>`;
+    // Conversational fallback
+    return Promise.resolve(
+      '<p>I\'m not sure I understood that, but I can help with a few things:</p>' +
+      '<ul class="agent-list">' +
+      '<li><strong>Find me a master\'s in education</strong> — search programs by topic, level, or modality</li>' +
+      '<li><strong>Tell me about med-curriculum</strong> — get details on a specific program</li>' +
+      '<li><strong>How do I apply?</strong> — see admissions steps (I\'ll use your last program level)</li>' +
+      '<li><strong>Financial aid estimate</strong> — after picking a program</li>' +
+      '<li><strong>Request info</strong> — I\'ll walk you through the form</li>' +
+      '</ul>'
+    );
   }
 
-  async function onSubmit(ev) {
+  /* ---- Form wiring ---- */
+
+  function onSubmit(ev) {
     ev.preventDefault();
-    const text = chatInput.value.trim();
+    var text = chatInput.value.trim();
     if (!text) return;
     chatInput.value = '';
-    appendMessage('user', `<p>${escapeHtml(text)}</p>`);
+    appendMessage('user', '<p>' + esc(text) + '</p>');
     setTyping(true);
-    try {
-      const replyHtml = await handleUserMessage(text);
-      appendMessage('agent', replyHtml);
-    } catch (err) {
-      const msg = err && err.message ? err.message : String(err);
-      appendMessage('agent', `<p>Something went wrong: ${escapeHtml(msg)}</p>`);
-    } finally {
+    handleUserMessage(text).then(function (html) {
+      appendMessage('agent', html);
+    }).catch(function (err) {
+      appendMessage('agent', '<p>Something went wrong: ' + esc(err && err.message ? err.message : String(err)) + '</p>');
+    }).then(function () {
       setTyping(false);
-    }
+    });
   }
 
   chatForm.addEventListener('submit', onSubmit);
-
-  chatInput.addEventListener('keydown', (ev) => {
+  chatInput.addEventListener('keydown', function (ev) {
     if (ev.key === 'Enter' && !ev.shiftKey) {
       ev.preventDefault();
       chatForm.requestSubmit();
@@ -466,8 +517,14 @@
 
   appendMessage(
     'agent',
-    `<p><strong>Welcome.</strong> I am a tiny in-browser agent that calls this site’s WebMCP tools through <code>navigator.modelContext</code>.</p>
-     <p>Try asking me to <strong>find programs</strong>, share <strong>admissions steps</strong>, estimate <strong>financial aid</strong>, or <strong>request information</strong> (that last one will show a consent screen before anything is sent).</p>
-     <p class="muted">Watch the inspector on the right to see each tool call, parameters, JSON responses, and timing.</p>`
+    '<p><strong>Hi, welcome to Demo University.</strong> I\'m an AI assistant powered by this site\'s WebMCP tools.</p>' +
+    '<p>Try asking me something like:</p>' +
+    '<ul class="agent-list">' +
+    '<li><strong>Find me an online master\'s in education</strong></li>' +
+    '<li><strong>How much does it cost?</strong></li>' +
+    '<li><strong>How do I apply?</strong></li>' +
+    '<li><strong>I want to request info</strong></li>' +
+    '</ul>' +
+    '<p class="muted">Watch the Tool Inspector panel to see every WebMCP call in real time.</p>'
   );
 })();
