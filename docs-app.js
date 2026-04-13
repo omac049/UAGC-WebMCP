@@ -11,10 +11,17 @@
   var navLinks = document.querySelectorAll('[data-doc]');
   var currentDoc = null;
 
-  function getDocFromHash() {
-    var hash = location.hash.replace('#', '');
-    if (ALLOWED_DOCS.indexOf(hash) !== -1) return hash;
-    return DEFAULT_DOC;
+  function parseHash() {
+    var raw = location.hash.replace(/^#/, '');
+    if (!raw) return { doc: DEFAULT_DOC, anchor: null };
+    if (ALLOWED_DOCS.indexOf(raw) !== -1) return { doc: raw, anchor: null };
+    var parts = raw.split(':');
+    if (parts.length === 2 && ALLOWED_DOCS.indexOf(parts[0]) !== -1) {
+      return { doc: parts[0], anchor: parts[1] };
+    }
+    var el = document.getElementById(raw);
+    if (el && currentDoc) return { doc: currentDoc, anchor: raw };
+    return { doc: DEFAULT_DOC, anchor: null };
   }
 
   function setActiveNav(doc) {
@@ -23,9 +30,22 @@
     });
   }
 
-  function loadDoc(doc) {
+  function scrollToAnchor(id) {
+    if (!id) return;
+    var target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  function loadDoc(doc, anchor) {
     if (ALLOWED_DOCS.indexOf(doc) === -1) doc = DEFAULT_DOC;
-    if (doc === currentDoc) return;
+
+    if (doc === currentDoc) {
+      if (anchor) scrollToAnchor(anchor);
+      return;
+    }
+
     currentDoc = doc;
     setActiveNav(doc);
     articleEl.style.display = 'none';
@@ -43,24 +63,42 @@
         loaderEl.style.display = 'none';
         articleEl.style.display = 'block';
         document.title = 'UAGC WebMCP \u2014 ' + doc.replace('UAGC_WebMCP_', '').replace('.md', '').replace(/([A-Z])/g, ' $1').trim();
+        if (anchor) {
+          requestAnimationFrame(function () { scrollToAnchor(anchor); });
+        }
       })
       .catch(function (err) {
         loaderEl.textContent = err.message;
       });
   }
 
+  articleEl.addEventListener('click', function (e) {
+    var link = e.target.closest('a');
+    if (!link) return;
+    var href = link.getAttribute('href');
+    if (!href || !href.startsWith('#')) return;
+    e.preventDefault();
+    var anchor = href.replace(/^#/, '');
+    var target = document.getElementById(anchor);
+    if (target) {
+      history.pushState(null, '', '#' + currentDoc + ':' + anchor);
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
   navLinks.forEach(function (link) {
     link.addEventListener('click', function (e) {
       e.preventDefault();
       var doc = link.getAttribute('data-doc');
       location.hash = doc;
-      loadDoc(doc);
     });
   });
 
   window.addEventListener('hashchange', function () {
-    loadDoc(getDocFromHash());
+    var parsed = parseHash();
+    loadDoc(parsed.doc, parsed.anchor);
   });
 
-  loadDoc(getDocFromHash());
+  var initial = parseHash();
+  loadDoc(initial.doc, initial.anchor);
 })();
