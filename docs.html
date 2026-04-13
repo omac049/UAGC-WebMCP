@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UAGC WebMCP — Documents</title>
+  <meta name="description" content="UAGC WebMCP strategy documents: executive brief, white paper, and technical appendices." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0a0e14;
+      --muted: #6b7280;
+      --paper: #fafaf8;
+      --surface: #fff;
+      --uagc: #ab2328;
+      --invite: #0d9488;
+      --line: rgba(10, 14, 20, 0.08);
+      --font-sans: "DM Sans", system-ui, sans-serif;
+      --font-serif: "Instrument Serif", Georgia, serif;
+      --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      --content-width: 52rem;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    * { margin: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--uagc); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Top bar */
+    .top-bar {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.75rem clamp(1rem, 4vw, 2rem);
+      background: var(--ink); border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .top-bar__brand {
+      font-family: var(--font-serif); font-size: 1.1rem; color: rgba(250,250,248,0.9);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .top-bar__brand span { color: var(--uagc); }
+    .top-bar__nav {
+      display: flex; gap: 0.25rem; flex-wrap: wrap; margin-left: auto;
+    }
+    .top-bar__link {
+      padding: 0.4rem 0.75rem; border-radius: 6px;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.03em;
+      color: rgba(250,250,248,0.6); background: transparent;
+      border: 1px solid transparent; cursor: pointer;
+      transition: color 0.2s, background 0.2s, border-color 0.2s;
+      text-decoration: none; white-space: nowrap;
+    }
+    .top-bar__link:hover { color: #fff; background: rgba(255,255,255,0.06); text-decoration: none; }
+    .top-bar__link.is-active {
+      color: #fff; background: rgba(171,35,40,0.25); border-color: rgba(171,35,40,0.5);
+    }
+    .top-bar__home {
+      padding: 0.4rem 0.75rem; border-radius: 6px;
+      font-size: 0.78rem; font-weight: 600;
+      color: rgba(250,250,248,0.45);
+      text-decoration: none; white-space: nowrap;
+    }
+    .top-bar__home:hover { color: rgba(250,250,248,0.8); text-decoration: none; }
+
+    /* Loading */
+    .loader {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 60vh; color: var(--muted); font-size: 0.9rem;
+    }
+    .loader::after {
+      content: ""; width: 20px; height: 20px; margin-left: 0.75rem;
+      border: 2px solid var(--line); border-top-color: var(--uagc);
+      border-radius: 50%; animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Article */
+    .article {
+      max-width: var(--content-width);
+      margin: 0 auto;
+      padding: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem) 4rem;
+    }
+
+    /* Markdown styles */
+    .article h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 400; line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.5rem;
+      color: var(--ink);
+    }
+    .article h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.4rem, 3.5vw, 1.85rem);
+      font-weight: 400; line-height: 1.2;
+      margin: 2.5rem 0 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+    }
+    .article h3 {
+      font-size: 1.1rem; font-weight: 700;
+      margin: 2rem 0 0.5rem;
+      color: var(--ink);
+    }
+    .article h4 {
+      font-size: 0.95rem; font-weight: 700;
+      margin: 1.5rem 0 0.4rem;
+      color: var(--ink);
+    }
+    .article p { margin: 0 0 1rem; }
+    .article ul, .article ol { margin: 0 0 1rem; padding-left: 1.5rem; }
+    .article li { margin-bottom: 0.35rem; }
+    .article li > ul, .article li > ol { margin-top: 0.35rem; margin-bottom: 0; }
+
+    .article blockquote {
+      margin: 1rem 0 1.25rem;
+      padding: 0.75rem 1rem;
+      border-left: 3px solid var(--uagc);
+      background: rgba(171, 35, 40, 0.04);
+      border-radius: 0 8px 8px 0;
+      color: #374151;
+      font-size: 0.95rem;
+    }
+    .article blockquote p:last-child { margin-bottom: 0; }
+
+    .article strong { font-weight: 700; }
+    .article em { font-style: italic; }
+
+    .article code {
+      font-family: var(--font-mono);
+      font-size: 0.82em;
+      padding: 0.15em 0.4em;
+      background: rgba(10, 14, 20, 0.06);
+      border-radius: 4px;
+    }
+    .article pre {
+      margin: 1rem 0 1.25rem;
+      padding: 1rem 1.15rem;
+      background: #0f1318;
+      border-radius: 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      line-height: 1.55;
+    }
+    .article pre code {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #e8e4dc;
+      background: none;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .article table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 1.25rem;
+      font-size: 0.88rem;
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .article thead { border-bottom: 2px solid var(--line); }
+    .article th {
+      text-align: left; padding: 0.55rem 0.75rem;
+      font-weight: 700; font-size: 0.78rem;
+      letter-spacing: 0.03em; color: var(--muted);
+      white-space: nowrap;
+    }
+    .article td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    .article tr:last-child td { border-bottom: none; }
+
+    .article hr {
+      border: none; height: 1px;
+      background: var(--line);
+      margin: 2rem 0;
+    }
+    .article img { max-width: 100%; border-radius: 8px; }
+
+    /* ASCII diagrams */
+    .article pre code {
+      white-space: pre;
+      tab-size: 4;
+    }
+
+    /* Metadata block styling */
+    .article > p:first-child strong,
+    .article > p:nth-child(2) strong,
+    .article > p:nth-child(3) strong {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+
+    /* Print */
+    @media print {
+      .top-bar { display: none; }
+      .article { padding: 1rem; max-width: none; }
+      .article pre { white-space: pre-wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="top-bar">
+  <div class="top-bar__brand"><span>UAGC</span> WebMCP</div>
+  <nav class="top-bar__nav" id="doc-nav">
+    <a class="top-bar__link" href="#" data-doc="UAGC_WebMCP_ExecutiveBrief.md">Executive Brief</a>
+    <a class="top-bar__link" href="#" data-doc="UAGC_WebMCP_WhitePaper.md">White Paper</a>
+    <a class="top-bar__link" href="#" data-doc="UAGC_WebMCP_Appendices.md">Appendices</a>
+  </nav>
+  <a class="top-bar__home" href="index.html">Landing Page</a>
+</header>
+
+<main>
+  <div class="loader" id="loader">Loading document</div>
+  <article class="article" id="article" style="display:none"></article>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/marked@15/marked.min.js"></script>
+<script>
+(function () {
+  var articleEl = document.getElementById('article');
+  var loaderEl = document.getElementById('loader');
+  var navLinks = document.querySelectorAll('[data-doc]');
+  var currentDoc = null;
+
+  function getDocFromHash() {
+    var hash = location.hash.replace('#', '');
+    if (hash && hash.endsWith('.md')) return hash;
+    return 'UAGC_WebMCP_WhitePaper.md';
+  }
+
+  function setActiveNav(doc) {
+    navLinks.forEach(function (link) {
+      link.classList.toggle('is-active', link.getAttribute('data-doc') === doc);
+    });
+  }
+
+  function loadDoc(doc) {
+    if (doc === currentDoc) return;
+    currentDoc = doc;
+    setActiveNav(doc);
+    articleEl.style.display = 'none';
+    loaderEl.style.display = 'flex';
+    window.scrollTo(0, 0);
+
+    fetch(doc)
+      .then(function (r) {
+        if (!r.ok) throw new Error('Could not load ' + doc);
+        return r.text();
+      })
+      .then(function (md) {
+        articleEl.innerHTML = marked.parse(md);
+        loaderEl.style.display = 'none';
+        articleEl.style.display = 'block';
+        document.title = 'UAGC WebMCP — ' + doc.replace('UAGC_WebMCP_', '').replace('.md', '').replace(/([A-Z])/g, ' $1').trim();
+      })
+      .catch(function (err) {
+        loaderEl.textContent = err.message;
+      });
+  }
+
+  navLinks.forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      var doc = link.getAttribute('data-doc');
+      location.hash = doc;
+      loadDoc(doc);
+    });
+  });
+
+  window.addEventListener('hashchange', function () {
+    loadDoc(getDocFromHash());
+  });
+
+  loadDoc(getDocFromHash());
+})();
+</script>
+</body>
+</html>
