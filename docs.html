@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>UAGC WebMCP — Documents</title>
   <meta name="description" content="UAGC WebMCP strategy documents: executive brief, white paper, and technical appendices." />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src https://cdn.jsdelivr.net; connect-src 'self'; img-src 'self' data:;" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -238,9 +239,17 @@
 
 <footer style="padding:1.5rem;text-align:center;font-size:0.8rem;color:#6b7280;border-top:1px solid rgba(10,14,20,0.08)">UAGC WebMCP · April 2026 · <a href="index.html" style="color:#ab2328">Landing Page</a> · <a href="https://www.w3.org/community/webmachinelearning/" style="color:#ab2328">W3C Web ML CG</a></footer>
 
-<script src="https://cdn.jsdelivr.net/npm/marked@15/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js" integrity="sha384-pcBjnGbkyKeOXaoFkmJiuR9E08/6gkmus6/Strimnxtl3uk0Hx23v345pWyC/MMr" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@15/marked.min.js" integrity="sha384-948ahk4ZmxYVYOc+rxN1H2gM1EJ2Duhp7uHtZ4WSLkV4Vtx5MUqnV+l7u9B+jFv+" crossorigin="anonymous"></script>
 <script>
 (function () {
+  var ALLOWED_DOCS = [
+    'UAGC_WebMCP_WhitePaper.md',
+    'UAGC_WebMCP_ExecutiveBrief.md',
+    'UAGC_WebMCP_Appendices.md'
+  ];
+  var DEFAULT_DOC = ALLOWED_DOCS[0];
+
   var articleEl = document.getElementById('article');
   var loaderEl = document.getElementById('loader');
   var navLinks = document.querySelectorAll('[data-doc]');
@@ -248,8 +257,8 @@
 
   function getDocFromHash() {
     var hash = location.hash.replace('#', '');
-    if (hash && hash.endsWith('.md')) return hash;
-    return 'UAGC_WebMCP_WhitePaper.md';
+    if (ALLOWED_DOCS.indexOf(hash) !== -1) return hash;
+    return DEFAULT_DOC;
   }
 
   function setActiveNav(doc) {
@@ -259,6 +268,7 @@
   }
 
   function loadDoc(doc) {
+    if (ALLOWED_DOCS.indexOf(doc) === -1) doc = DEFAULT_DOC;
     if (doc === currentDoc) return;
     currentDoc = doc;
     setActiveNav(doc);
@@ -272,7 +282,8 @@
         return r.text();
       })
       .then(function (md) {
-        articleEl.innerHTML = marked.parse(md);
+        var rawHtml = marked.parse(md);
+        articleEl.innerHTML = DOMPurify.sanitize(rawHtml);
         loaderEl.style.display = 'none';
         articleEl.style.display = 'block';
         document.title = 'UAGC WebMCP — ' + doc.replace('UAGC_WebMCP_', '').replace('.md', '').replace(/([A-Z])/g, ' $1').trim();
