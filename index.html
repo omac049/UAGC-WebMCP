@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UAGC WebMCP — Executive Brief</title>
+  <meta name="description" content="Dual-layer strategy: WebMCP tools for invited AI agents, honeypot defense for unauthorized scrapers." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0a0e14;
+      --muted: #6b7280;
+      --paper: #fafaf8;
+      --surface: #fff;
+      --uagc: #ab2328;
+      --invite: #0d9488;
+      --defense: #7c3aed;
+      --line: rgba(10, 14, 20, 0.08);
+      --radius: 2px;
+      --font-sans: "DM Sans", system-ui, sans-serif;
+      --font-serif: "Instrument Serif", Georgia, serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    * { margin: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      line-height: 1.55;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+
+    .reveal { opacity: 0; transform: translateY(16px); }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); transition: opacity 0.65s ease, transform 0.65s ease; }
+
+    @keyframes hero-fade-rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes dash-flow { to { stroke-dashoffset: -120; } }
+    @keyframes node-breathe { 0%, 100% { opacity: 0.65; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+    @keyframes pulse-glow { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+    /* Header */
+    .site-header {
+      position: fixed; inset: 0 0 auto 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 1rem clamp(1.25rem, 4vw, 3rem);
+      background: transparent; border-bottom: 1px solid transparent;
+      transition: background 0.4s, border-color 0.4s, box-shadow 0.4s;
+    }
+    .site-header.is-scrolled {
+      background: var(--surface); border-bottom-color: var(--line);
+      box-shadow: 0 1px 0 rgba(10,14,20,0.04);
+    }
+    .brand { font-family: var(--font-serif); font-size: 1.2rem; color: rgba(250,250,248,0.92); transition: color 0.4s; }
+    .brand span { color: var(--uagc); }
+    .is-scrolled .brand { color: var(--ink); }
+    .nav-links { display: flex; gap: clamp(0.75rem,3vw,1.5rem); flex-wrap: wrap; }
+    .nav-links a {
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+      color: rgba(250,250,248,0.7); transition: color 0.3s;
+    }
+    .nav-links a:hover { color: #fff; }
+    .is-scrolled .nav-links a { color: var(--muted); }
+    .is-scrolled .nav-links a:hover { color: var(--ink); }
+    @media (max-width: 640px) { .nav-links { display: none; } }
+
+    /* Hero */
+    .hero { position: relative; width: 100%; min-height: 100svh; background: var(--ink); color: #fafaf8; overflow: hidden; isolation: isolate; }
+    .hero__svg-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+    .hero__svg-bg svg { width: 100%; height: 100%; }
+    .hero__flow-invite { fill: none; stroke: var(--invite); stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 10 14; animation: dash-flow 14s linear infinite; opacity: 0.8; }
+    .hero__flow-defense { fill: none; stroke: var(--defense); stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 8 12; animation: dash-flow 18s linear infinite reverse; opacity: 0.7; }
+    .hero__node { transform-origin: center; animation: node-breathe 4.5s ease-in-out infinite; }
+    .hero__node--d1 { animation-delay: 0.6s; }
+    .hero__node--d2 { animation-delay: 1.2s; }
+    .hero__node--d3 { animation-delay: 1.8s; }
+    .hero__glow { animation: pulse-glow 3.2s ease-in-out infinite; }
+    .hero__inner {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      min-height: 100svh; padding: 6rem clamp(1.25rem,4vw,3rem) clamp(2.5rem,8vh,4rem);
+    }
+    .hero__col { max-width: 38rem; }
+    .hero__brand {
+      font-family: var(--font-serif); font-size: clamp(4.5rem,18vw,11rem); line-height: 0.88;
+      font-weight: 400; letter-spacing: -0.03em; color: var(--uagc);
+      text-shadow: 0 0 80px rgba(171,35,40,0.35);
+      opacity: 0; animation: hero-fade-rise 1s cubic-bezier(0.22,1,0.36,1) 0.2s forwards;
+    }
+    .hero__headline {
+      margin-top: clamp(0.75rem,2vw,1.25rem);
+      font-family: var(--font-serif); font-size: clamp(1.85rem,5vw,3rem);
+      font-weight: 400; line-height: 1.12; letter-spacing: -0.02em; color: #f4f4f0;
+      opacity: 0; animation: hero-fade-rise 1s cubic-bezier(0.22,1,0.36,1) 0.4s forwards;
+    }
+    .hero__lead {
+      margin-top: clamp(1rem,2.5vw,1.5rem); font-size: clamp(1rem,2.1vw,1.125rem);
+      color: rgba(250,250,248,0.7); max-width: 32rem;
+      opacity: 0; animation: hero-fade-rise 1s cubic-bezier(0.22,1,0.36,1) 0.6s forwards;
+    }
+    .hero__actions {
+      display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; margin-top: clamp(1.75rem,4vw,2.5rem);
+      opacity: 0; animation: hero-fade-rise 1s cubic-bezier(0.22,1,0.36,1) 0.8s forwards;
+    }
+    .btn {
+      display: inline-flex; align-items: center; padding: 0.85rem 1.35rem;
+      font-size: 0.9rem; font-weight: 600; border-radius: var(--radius); border: 1px solid transparent;
+      transition: background 0.25s, border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn--primary { background: var(--uagc); color: #fff; box-shadow: 0 12px 40px rgba(171,35,40,0.28); }
+    .btn--primary:hover { background: #c42a30; box-shadow: 0 16px 48px rgba(171,35,40,0.35); }
+    .btn--ghost { background: transparent; color: rgba(250,250,248,0.9); border-color: rgba(250,250,248,0.35); }
+    .btn--ghost:hover { border-color: rgba(250,250,248,0.6); background: rgba(250,250,248,0.06); }
+
+    /* Agentflow */
+    .af-section { padding: clamp(1.5rem,4vw,3rem) 0; }
+    .af-wrap { max-width: 1180px; margin: 0 auto; padding: 0 clamp(1rem,3vw,1.5rem); }
+    .af-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: clamp(1.5rem,3vw,2.25rem); }
+    .af-head { margin-bottom: 1.25rem; }
+    .af-head h2 { font-family: var(--font-serif); font-size: clamp(1.75rem,4vw,2.25rem); font-weight: 400; margin: 0 0 0.35rem; }
+    .af-head p { margin: 0; font-size: 0.95rem; color: var(--muted); max-width: 42rem; }
+    .af-svg-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .af-svg-wrap svg { display: block; width: 100%; min-width: 720px; height: auto; }
+    @keyframes af-dash { to { stroke-dashoffset: -36; } }
+    .af-edge-invite { animation: af-dash 1.4s linear infinite; }
+    .af-edge-defense { animation: af-dash 2s linear infinite; }
+    .af-legend { display: flex; flex-wrap: wrap; gap: 0.65rem 1.25rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: 0.8125rem; color: var(--muted); }
+    .af-legend span { display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+    .af-dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; flex-shrink: 0; }
+
+    /* Demo */
+    .demo-section { padding: clamp(2rem,5vw,3.5rem) clamp(1rem,3vw,1.5rem); max-width: 72rem; margin: 0 auto; }
+    .demo-head { margin-bottom: 1.5rem; }
+    .demo-head h2 { font-family: var(--font-serif); font-size: clamp(1.75rem,4vw,2.25rem); font-weight: 400; margin: 0 0 0.35rem; }
+    .demo-head p { margin: 0; font-size: 0.95rem; color: var(--muted); max-width: 42rem; }
+    .demo-grid { display: grid; gap: 1.25rem; }
+    @media (min-width: 768px) { .demo-grid { grid-template-columns: 1fr 1fr; gap: 1.5rem; } }
+    .demo-panel { border-radius: 16px; overflow: hidden; }
+    .demo-panel__label { padding: 0.75rem 1rem; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); margin: 0; }
+    .demo-chat { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+    .demo-chat-log { padding: 1rem; display: flex; flex-direction: column; gap: 0.65rem; min-height: 300px; }
+    .demo-msg { max-width: 85%; padding: 0.65rem 0.85rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.45; opacity: 0; transform: translateY(8px); transition: opacity 0.4s ease, transform 0.4s ease; cursor: pointer; }
+    .demo-msg.is-visible { opacity: 1; transform: translateY(0); }
+    .demo-msg.is-active { outline: 2px solid var(--invite); outline-offset: 1px; }
+    .demo-msg--student { align-self: flex-end; background: #e2e8f0; color: var(--ink); border-bottom-right-radius: 4px; }
+    .demo-msg--agent { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); color: var(--ink); border-bottom-left-radius: 4px; }
+    .demo-msg strong { display: block; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.25rem; }
+    .demo-msg .mini-results { margin: 0.5rem 0 0; padding: 0; list-style: none; font-size: 0.8rem; }
+    .demo-msg .mini-results li { padding: 0.2rem 0; border-top: 1px solid var(--line); }
+    .demo-msg .mini-results li:first-child { border-top: none; }
+    .demo-tools { background: #0f1318; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; }
+    .demo-tools .demo-panel__label { color: rgba(255,255,255,0.4); border-bottom-color: rgba(255,255,255,0.06); }
+    .demo-tool-list { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .demo-tool {
+      padding: 0.65rem 0.75rem; border-radius: 8px; border-left: 3px solid transparent;
+      background: rgba(255,255,255,0.03); font-size: 0.78rem; line-height: 1.5; color: #e8e4dc;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      opacity: 0.4; transition: opacity 0.3s, border-color 0.3s, background 0.3s; cursor: pointer;
+    }
+    .demo-tool.is-active { opacity: 1; border-left-color: #22c55e; background: rgba(34,197,94,0.08); }
+    .demo-tool .t-fn { color: var(--invite); }
+    .demo-tool .t-str { color: #d97706; }
+    .demo-tool .t-key { color: #e2e8f0; }
+    .demo-consent { display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.4rem; padding: 0.2rem 0.5rem; border-radius: 6px; background: rgba(124,58,237,0.2); font-size: 0.65rem; font-weight: 600; color: #a78bfa; font-family: var(--font-sans); letter-spacing: 0.04em; }
+    .demo-consent svg { width: 12px; height: 12px; }
+
+    /* Before/After */
+    .ba-section { padding: 0 clamp(1rem,3vw,1.5rem) 3rem; max-width: 72rem; margin: 0 auto; }
+    .ba-grid { display: grid; gap: 1.25rem; margin-top: 1.25rem; }
+    @media (min-width: 768px) { .ba-grid { grid-template-columns: 1fr 1fr; gap: 1.5rem; } }
+    .ba-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 1rem; }
+    .ba-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 0.75rem; }
+    .ba-label--bad { color: #b91c1c; }
+    .ba-label--good { color: var(--invite); }
+    .ba-svg { width: 100%; height: auto; display: block; border-radius: 12px; }
+    .ba-cap { margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--muted); }
+
+    /* Compliance */
+    .comp-section { padding: 0 clamp(1rem,3vw,1.5rem) 3rem; max-width: 72rem; margin: 0 auto; }
+    .comp-grid { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-top: 1.25rem; }
+    @media (min-width: 720px) { .comp-grid { grid-template-columns: repeat(3,1fr); } }
+    .comp-col { background: var(--surface); padding: 1.15rem 1.25rem; border-left: 4px solid transparent; }
+    .comp-col--low { border-left-color: #16a34a; }
+    .comp-col--med { border-left-color: #d97706; }
+    .comp-col--high { border-left-color: #dc2626; }
+    .comp-col h3 { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 400; margin: 0 0 0.5rem; }
+    .comp-col .comp-tools { font-size: 0.8125rem; font-weight: 600; margin: 0 0 0.5rem; }
+    .comp-col .comp-tools code { font-family: ui-monospace, Menlo, monospace; font-size: 0.75rem; background: rgba(10,14,20,0.05); padding: 0.1rem 0.35rem; border-radius: 4px; }
+    .comp-col .comp-note { font-size: 0.8125rem; color: var(--muted); margin: 0; }
+
+    /* Roadmap */
+    .road-section { padding: 0 clamp(1rem,3vw,1.5rem) 3rem; max-width: 72rem; margin: 0 auto; }
+    .road-track { list-style: none; padding: 0; margin: 1.5rem 0 0; display: flex; flex-direction: column; }
+    @media (min-width: 900px) {
+      .road-track { flex-direction: row; align-items: flex-start; position: relative; padding-top: 1.25rem; }
+      .road-track::before { content: ""; position: absolute; left: 0; right: 0; top: 0.5rem; height: 2px; background: var(--line); }
+    }
+    .road-phase { position: relative; flex: 1 1 0; padding: 0 0 1.5rem 1.75rem; border-left: 2px solid var(--line); }
+    @media (min-width: 900px) {
+      .road-phase { border-left: none; padding: 2rem 0.75rem 0; text-align: center; }
+      .road-phase::before { content: ""; position: absolute; top: 0.35rem; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid var(--uagc); z-index: 1; box-shadow: 0 0 0 4px var(--paper); }
+    }
+    .road-phase:last-child { padding-bottom: 0; }
+    .road-when { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--uagc); margin: 0 0 0.25rem; }
+    .road-name { font-weight: 600; font-size: 0.95rem; margin: 0 0 0.35rem; }
+    .road-desc { font-size: 0.8125rem; color: var(--muted); margin: 0; }
+
+    /* KPI */
+    .kpi-section { padding: 0 clamp(1rem,3vw,1.5rem) 3rem; max-width: 72rem; margin: 0 auto; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-top: 1.25rem; }
+    @media (min-width: 900px) { .kpi-grid { grid-template-columns: repeat(3,1fr); } }
+    .kpi-cell { background: var(--surface); padding: 1.2rem 1rem; text-align: center; }
+    .kpi-cell strong { display: block; font-family: var(--font-serif); font-size: clamp(1.35rem,2.5vw,1.65rem); color: var(--uagc); line-height: 1.15; font-weight: 400; }
+    .kpi-cell span { display: block; margin-top: 0.4rem; font-size: 0.78rem; color: var(--muted); }
+
+    /* Section heads */
+    .sec-head { margin-bottom: 1.25rem; }
+    .sec-head h2 { font-family: var(--font-serif); font-size: clamp(1.75rem,4vw,2.25rem); font-weight: 400; margin: 0 0 0.35rem; }
+    .sec-head p { margin: 0; font-size: 0.95rem; color: var(--muted); max-width: 48ch; }
+
+    /* Appendix */
+    .appendix-section { padding: 0 clamp(1rem,3vw,1.5rem) 3rem; max-width: 48rem; margin: 0 auto; }
+    details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 0.75rem; overflow: hidden; }
+    summary { padding: 1rem 1.15rem; font-weight: 600; font-size: 0.9375rem; cursor: pointer; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; float: right; color: var(--muted); font-weight: 400; }
+    details[open] summary::after { content: "\2212"; }
+    .app-body { padding: 0 1.15rem 1.15rem; border-top: 1px solid var(--line); }
+    .app-body p { font-size: 0.9rem; color: var(--muted); margin: 0.75rem 0; }
+    .code-block { margin: 0.75rem 0; border-radius: 8px; background: #0f1318; overflow: hidden; }
+    .code-block pre { margin: 0; padding: 0.9rem 1rem; overflow-x: auto; font-size: 0.72rem; line-height: 1.5; color: #e8e4dc; font-family: ui-monospace, Menlo, monospace; }
+
+    /* CTA */
+    .final-cta { text-align: center; padding: 3.25rem 1.25rem; background: var(--ink); color: #fff; }
+    .final-cta h2 { font-family: var(--font-serif); font-size: clamp(1.65rem,3.2vw,2.15rem); font-weight: 400; margin: 0 0 0.65rem; }
+    .final-cta p { margin: 0 auto 1.35rem; font-size: 0.95rem; color: rgba(255,255,255,0.65); max-width: 36rem; }
+    .final-cta a { display: inline-block; padding: 0.8rem 1.35rem; background: var(--uagc); color: #fff; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; border-radius: 8px; }
+    .final-cta a:hover { filter: brightness(1.08); }
+
+    footer { padding: 1.5rem; text-align: center; font-size: 0.8rem; color: var(--muted); }
+    footer a { color: var(--uagc); }
+  </style>
+</head>
+<body>
+
+<!-- Header (overlays hero, switches to light on scroll) -->
+<header class="site-header" id="site-header">
+  <a class="brand" href="#hero"><span>UAGC</span> WebMCP</a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#agentflow">Agentflow</a>
+    <a href="#demo">Demo</a>
+    <a href="#compare">Compare</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#pilot">Targets</a>
+  </nav>
+</header>
+
+<!-- ═══════════════════════════════════════════════
+     HERO — Full-bleed, animated SVG background
+     ═══════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero__svg-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="gl-i" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="gl-d" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <radialGradient id="vig" cx="50%" cy="40%" r="70%"><stop offset="0%" stop-color="#0a0e14" stop-opacity="0"/><stop offset="100%" stop-color="#0a0e14" stop-opacity="0.85"/></radialGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="#0a0e14"/>
+      <rect width="100%" height="100%" fill="url(#vig)"/>
+      <path class="hero__flow-invite" filter="url(#gl-i)" d="M-40 520 C180 480,220 200,420 240 S700 120,900 280 S1180 360,1240 180"/>
+      <path class="hero__flow-invite" filter="url(#gl-i)" opacity="0.45" d="M80 780 C260 640,340 420,520 500 S820 620,1120 520"/>
+      <path class="hero__flow-defense" filter="url(#gl-d)" d="M1280 640 C1000 600,920 320,720 380 S420 200,200 360 S-60 520,-80 200"/>
+      <path class="hero__flow-defense" filter="url(#gl-d)" opacity="0.4" d="M1100 40 C880 120,760 400,560 340 S280 260,120 440"/>
+      <g class="hero__node" filter="url(#gl-i)"><circle class="hero__glow" cx="380" cy="260" r="28" fill="#0d9488" opacity="0.25"/><circle cx="380" cy="260" r="9" fill="#14b8a6"/></g>
+      <g class="hero__node hero__node--d1" filter="url(#gl-i)"><circle class="hero__glow" cx="720" cy="300" r="22" fill="#0d9488" opacity="0.22"/><circle cx="720" cy="300" r="7" fill="#2dd4bf"/></g>
+      <g class="hero__node hero__node--d2" filter="url(#gl-d)"><circle class="hero__glow" cx="560" cy="380" r="32" fill="#7c3aed" opacity="0.28"/><circle cx="560" cy="380" r="10" fill="#a78bfa"/></g>
+      <g class="hero__node hero__node--d3" filter="url(#gl-d)"><circle class="hero__glow" cx="920" cy="420" r="26" fill="#7c3aed" opacity="0.24"/><circle cx="920" cy="420" r="8" fill="#c4b5fd"/></g>
+    </svg>
+  </div>
+  <div class="hero__inner">
+    <div class="hero__col">
+      <p class="hero__brand" aria-hidden="true">UAGC</p>
+      <h1 class="hero__headline">The front door for AI agents. The trap door for scrapers.</h1>
+      <p class="hero__lead">WebMCP pairs structured browser tools for invited agents with honeypot defense for everything else — one dual-layer strategy for higher education.</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#agentflow">See the agentflow</a>
+        <a class="btn btn--ghost" href="UAGC_WebMCP_WhitePaper.md">Read the white paper</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     AGENTFLOW — Animated SVG flow diagram
+     ═══════════════════════════════════════════════ -->
+<section class="af-section reveal" id="agentflow">
+  <div class="af-wrap">
+    <div class="af-panel">
+      <header class="af-head">
+        <h2>How value flows</h2>
+        <p>Two paths through the same property — one optimized, one contained.</p>
+      </header>
+      <div class="af-svg-wrap">
+        <svg viewBox="0 0 960 460" role="img" aria-label="Agentflow: invited path and defense path" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="af-gl" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <marker id="af-ai" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#2563eb" opacity="0.8"/></marker>
+            <marker id="af-ad" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7Z" fill="#64748b" opacity="0.5"/></marker>
+          </defs>
+          <!-- Boundary -->
+          <line x1="24" y1="228" x2="936" y2="228" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="6 8"/>
+          <rect x="360" y="215" width="240" height="26" rx="6" fill="#fff" stroke="rgba(10,14,20,0.08)"/>
+          <text x="480" y="232" text-anchor="middle" font-family="DM Sans, system-ui, sans-serif" font-size="10" font-weight="700" fill="#64748b" letter-spacing="0.06em">POLICY BOUNDARY</text>
+          <!-- Layer labels -->
+          <text x="24" y="42" font-family="DM Sans, system-ui, sans-serif" font-size="11" font-weight="700" fill="#0d9488" letter-spacing="0.05em">LAYER 1 — INVITED</text>
+          <text x="24" y="260" font-family="DM Sans, system-ui, sans-serif" font-size="11" font-weight="700" fill="#7c3aed" letter-spacing="0.05em">LAYER 2 — DEFENSE</text>
+          <!-- Invited edges -->
+          <g filter="url(#af-gl)">
+            <path class="af-edge-invite" d="M148 98 C180 98,186 98,210 98" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-dasharray="10 8" marker-end="url(#af-ai)"/>
+            <path class="af-edge-invite" d="M350 98 C380 98,386 98,410 98" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-dasharray="10 8" marker-end="url(#af-ai)"/>
+            <path class="af-edge-invite" d="M568 98 C598 98,604 98,628 98" fill="none" stroke="#ab2328" stroke-width="2" stroke-linecap="round" stroke-dasharray="10 8" marker-end="url(#af-ai)"/>
+            <path class="af-edge-invite" d="M788 98 C818 98,824 98,848 98" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-dasharray="10 8" marker-end="url(#af-ai)"/>
+          </g>
+          <!-- Defense edges -->
+          <g opacity="0.7">
+            <path class="af-edge-defense" d="M148 338 C178 338,184 338,208 338" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="7 7" marker-end="url(#af-ad)"/>
+            <path class="af-edge-defense" d="M348 338 C378 338,384 338,408 338" fill="none" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="7 7" marker-end="url(#af-ad)"/>
+            <path class="af-edge-defense" d="M558 338 C588 338,594 338,618 338" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="7 7" marker-end="url(#af-ad)"/>
+            <path class="af-edge-defense" d="M778 338 C808 338,814 338,838 338" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="7 7" marker-end="url(#af-ad)"/>
+          </g>
+          <!-- Invited nodes -->
+          <g><rect x="24" y="62" width="124" height="72" rx="10" fill="#fff" stroke="rgba(10,14,20,0.1)"/><rect x="24" y="62" width="4" height="72" rx="2" fill="#2563eb"/><text x="36" y="80" font-family="DM Sans, system-ui, sans-serif" font-size="9" font-weight="700" fill="#2563eb" letter-spacing="0.08em">TRIGGER</text><text x="36" y="98" font-family="DM Sans, system-ui, sans-serif" font-size="12" font-weight="700" fill="#0a0e14">Student</text><text x="36" y="120" font-family="DM Sans, system-ui, sans-serif" font-size="9.5" fill="#6b7280">Asks an AI for help</text></g>
+          <g><rect x="216" y="62" width="134" height="72" rx="10" fill="#fff" stroke="rgba(10,14,20,0.1)"/><rect x="216" y="62" width="4" height="72" rx="2" fill="#0d9488"/><text x="228" y="80" font-family="DM Sans, system-ui, sans-serif" font-size="9" font-weight="700" fill="#0d9488" letter-spacing="0.08em">AGENT</text><text x="228" y="98" font-family="DM Sans, system-ui, sans-serif" font-size="12" font-weight="700" fill="#0a0e14">Browser AI</text><text x="228" y="120" font-family="DM Sans, system-ui, sans-serif" font-size="9.5" fill="#6b7280">Sees the live tab</text></g>
+          <g><rect x="416" y="54" width="152" height="88" rx="10" fill="#fff" stroke="rgba(10,14,20,0.1)"/><rect x="416" y="54" width="4" height="88" rx="2" fill="#ab2328"/><text x="428" y="74" font-family="DM Sans, system-ui, sans-serif" font-size="9" font-weight="700" fill="#ab2328" letter-spacing="0.08em">SURFACE</text><text x="428" y="92" font-family="DM Sans, system-ui, sans-serif" font-size="12" font-weight="700" fill="#0a0e14">UAGC + WebMCP</text><text x="428" y="110" font-family="DM Sans, system-ui, sans-serif" font-size="9.5" fill="#6b7280">Registered host tools</text><text x="428" y="130" font-family="DM Sans, system-ui, sans-serif" font-size="9" fill="#6b7280">Ephemeral, auditable</text></g>
+          <g><rect x="634" y="54" width="154" height="88" rx="10" fill="#fff" stroke="rgba(10,14,20,0.1)"/><rect x="634" y="54" width="4" height="88" rx="2" fill="#16a34a"/><text x="646" y="74" font-family="DM Sans, system-ui, sans-serif" font-size="9" font-weight="700" fill="#16a34a" letter-spacing="0.08em">TOOLS</text><text x="646" y="92" font-family="DM Sans, system-ui, sans-serif" font-size="12" font-weight="700" fill="#0a0e14">Structured actions</text><text x="646" y="114" font-family="DM Sans, system-ui, sans-serif" font-size="9" fill="#6b7280">searchPrograms · admissions</text><text x="646" y="130" font-family="DM Sans, system-ui, sans-serif" font-size="9" fill="#6b7280">submitRFI · aidEstimate</text></g>
+          <g><rect x="854" y="62" width="82" height="72" rx="10" fill="#fff" stroke="rgba(10,14,20,0.1)"/><rect x="854" y="62" width="4" height="72" rx="2" fill="#ea580c"/><text x="866" y="80" font-family="DM Sans, system-ui, sans-serif" font-size="9" font-weight="700" fill="#ea580c" letter-spacing="0.08em">OUTCOME</text><text x="866" y="98" font-family="DM Sans, system-ui, sans-serif" font-size="11" font-weight="700" fill="#0a0e14">Better</text><text x="866" y="114" font-family="DM Sans, system-ui, sans-serif" font-size="11" font-weight="700" fill="#0a0e14">conversion</text></g>
+          <!-- Defense nodes -->
+          <g><rect x="24" y="302" width="124" height="72" rx="10" fill="#fff" stroke="rgba(10,14,20,0.1)"/><rect x="24" y="302" width="4" height="72" rx="2" fill="#64748b"/><text x="36" y="322" font-family="DM Sans, system-ui, sans-serif" font-size="9" font-weight="700" fill="#64748b" letter-spacing="0.08em">SCRAPER</text><text x="36" y="340" font-family="DM Sans, system-ui, sans-serif" font-size="12" font-weight="700" fill="#0a0e14">Unauthorized bot</text><text x="36" y="360" font-family="DM Sans, system-ui, sans-serif" font-size="9.5" fill="#6b7280">Ignores robots.txt</text></g>
+          <g><rect x="214" y="302" width="134" height="72" rx="10" fill="#fff" stroke="rgba(10,14,20,0.1)"/><rect x="214" y="302" width="4" height="72" rx="2" fill="#374151"/><text x="226" y="322" font-family="DM Sans, system-ui, sans-serif" font-size="9" font-weight="700" fill="#374151" letter-spacing="0.08em">EDGE / WAF</text><text x="226" y="340" font-family="DM Sans, system-ui, sans-serif" font-size="12" font-weight="700" fill="#0a0e14">Detection</text><text x="226" y="360" font-family="DM Sans, system-ui, sans-serif" font-size="9.5" fill="#6b7280">Bot scoring, signals</text></g>
+          <g><rect x="414" y="294" width="144" height="88" rx="10" fill="#fff" stroke="rgba(10,14,20,0.1)"/><rect x="414" y="294" width="4" height="88" rx="2" fill="#7c3aed"/><text x="426" y="314" font-family="DM Sans, system-ui, sans-serif" font-size="9" font-weight="700" fill="#7c3aed" letter-spacing="0.08em">HONEYPOT</text><text x="426" y="332" font-family="DM Sans, system-ui, sans-serif" font-size="12" font-weight="700" fill="#0a0e14">Tarpit maze</text><text x="426" y="352" font-family="DM Sans, system-ui, sans-serif" font-size="9.5" fill="#6b7280">Burns crawl budget</text><text x="426" y="370" font-family="DM Sans, system-ui, sans-serif" font-size="9" fill="#6b7280">Markov nonsense</text></g>
+          <g><rect x="624" y="302" width="154" height="72" rx="10" fill="#fff" stroke="rgba(10,14,20,0.1)"/><rect x="624" y="302" width="4" height="72" rx="2" fill="#64748b"/><text x="636" y="322" font-family="DM Sans, system-ui, sans-serif" font-size="9" font-weight="700" fill="#64748b" letter-spacing="0.08em">DEAD END</text><text x="636" y="340" font-family="DM Sans, system-ui, sans-serif" font-size="12" font-weight="700" fill="#0a0e14">No clean harvest</text><text x="636" y="360" font-family="DM Sans, system-ui, sans-serif" font-size="9.5" fill="#6b7280">Canary tokens only</text></g>
+          <g><rect x="844" y="302" width="92" height="72" rx="10" fill="#f1f5f9" stroke="rgba(10,14,20,0.1)"/><rect x="844" y="302" width="4" height="72" rx="2" fill="#94a3b8"/><text x="856" y="322" font-family="DM Sans, system-ui, sans-serif" font-size="9" font-weight="700" fill="#94a3b8" letter-spacing="0.08em">RESULT</text><text x="856" y="340" font-family="DM Sans, system-ui, sans-serif" font-size="11" font-weight="700" fill="#94a3b8">Sovereignty</text><text x="856" y="358" font-family="DM Sans, system-ui, sans-serif" font-size="11" font-weight="700" fill="#94a3b8">preserved</text></g>
+        </svg>
+      </div>
+      <div class="af-legend">
+        <span><i class="af-dot" style="background:#2563eb"></i>Trigger</span>
+        <span><i class="af-dot" style="background:#0d9488"></i>Agent</span>
+        <span><i class="af-dot" style="background:#ab2328"></i>Surface</span>
+        <span><i class="af-dot" style="background:#16a34a"></i>Tools</span>
+        <span><i class="af-dot" style="background:#ea580c"></i>Outcome</span>
+        <span><i class="af-dot" style="background:#7c3aed"></i>Defense</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     DEMO — Interactive chat + tool calls
+     ═══════════════════════════════════════════════ -->
+<section class="demo-section reveal" id="demo">
+  <header class="demo-head">
+    <h2>What a student actually sees</h2>
+    <p>A real enrollment conversation — and the structured tool calls powering it.</p>
+  </header>
+  <div class="demo-grid">
+    <div class="demo-chat demo-panel">
+      <p class="demo-panel__label">Chat</p>
+      <div class="demo-chat-log" id="demo-chat-log">
+        <div class="demo-msg demo-msg--student" data-step="1"><strong>Student</strong>Find me an affordable online master's in education</div>
+        <div class="demo-msg demo-msg--agent" data-step="2"><strong>Agent</strong>I found 3 matching programs at UAGC:<ul class="mini-results"><li>M.Ed. in Curriculum — 36 credits, $330/cr</li><li>M.Ed. in Leadership — 36 credits, $330/cr</li><li>M.A. in Teaching — 30 credits, $345/cr</li></ul></div>
+        <div class="demo-msg demo-msg--student" data-step="3"><strong>Student</strong>What about financial aid for the M.Ed.?</div>
+        <div class="demo-msg demo-msg--agent" data-step="4"><strong>Agent</strong>Based on full-time enrollment, estimated aid covers 40–60% of tuition. Want me to request more info?</div>
+      </div>
+    </div>
+    <div class="demo-tools demo-panel">
+      <p class="demo-panel__label">Tool calls (under the hood)</p>
+      <div class="demo-tool-list">
+        <div class="demo-tool" data-step="1"><span class="t-fn">searchPrograms</span>({ <span class="t-key">keyword</span>: <span class="t-str">"education"</span>, <span class="t-key">level</span>: <span class="t-str">"master"</span>, <span class="t-key">modality</span>: <span class="t-str">"online"</span> })</div>
+        <div class="demo-tool" data-step="2"><span class="t-fn">getProgramDetails</span>({ <span class="t-key">programId</span>: <span class="t-str">"med-001"</span> })</div>
+        <div class="demo-tool" data-step="3"><span class="t-fn">getFinancialAidEstimate</span>({ <span class="t-key">programId</span>: <span class="t-str">"med-001"</span>, <span class="t-key">enrollmentStatus</span>: <span class="t-str">"full-time"</span> })</div>
+        <div class="demo-tool" data-step="4"><span class="t-fn">submitRFI</span>({ <span class="t-key">firstName</span>: <span class="t-str">"Maria"</span>, <span class="t-key">email</span>: <span class="t-str">"..."</span>, <span class="t-key">programInterest</span>: <span class="t-str">"med-001"</span> })<div class="demo-consent"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="3" stroke="#a78bfa" stroke-width="1.5"/><path d="M4 8 L7 11 L12 5" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Browser consent required</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     BEFORE / AFTER
+     ═══════════════════════════════════════════════ -->
+<section class="ba-section reveal" id="compare">
+  <div class="sec-head">
+    <h2>Before and after</h2>
+    <p>Screen-only agents guess the DOM. WebMCP exposes stable, typed contracts on the page you control.</p>
+  </div>
+  <div class="ba-grid">
+    <div class="ba-panel">
+      <p class="ba-label ba-label--bad">Without WebMCP</p>
+      <svg class="ba-svg" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="8" width="304" height="184" rx="10" fill="#fff" stroke="rgba(10,14,20,0.12)"/>
+        <rect x="20" y="20" width="280" height="22" rx="5" fill="rgba(10,14,20,0.06)"/>
+        <circle cx="32" cy="31" r="4" fill="#ef4444"/><circle cx="46" cy="31" r="4" fill="#f59e0b"/><circle cx="60" cy="31" r="4" fill="#22c55e"/>
+        <rect x="78" y="26" width="210" height="10" rx="3" fill="rgba(10,14,20,0.08)"/>
+        <rect x="24" y="54" width="88" height="28" rx="6" fill="rgba(171,35,40,0.12)" stroke="rgba(171,35,40,0.35)"/>
+        <rect x="122" y="54" width="88" height="28" rx="6" fill="rgba(10,14,20,0.04)" stroke="rgba(10,14,20,0.12)"/>
+        <path d="M48 118 Q90 88 132 118 T216 118" fill="none" stroke="#b91c1c" stroke-width="2" stroke-dasharray="5 4"/>
+        <g fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linecap="round">
+          <path d="M68 142 L82 156"/><path d="M82 142 L68 156"/>
+          <path d="M152 138 L166 152"/><path d="M166 138 L152 152"/>
+          <path d="M244 146 L258 160"/><path d="M258 146 L244 160"/>
+          <path d="M108 168 L122 182"/><path d="M122 168 L108 182"/>
+        </g>
+        <circle cx="260" cy="100" r="14" fill="rgba(13,148,136,0.15)" stroke="rgba(13,148,136,0.45)"/>
+        <text x="260" y="104" text-anchor="middle" font-size="11" font-family="system-ui,sans-serif" fill="#0f766e" font-weight="700">AI</text>
+      </svg>
+      <p class="ba-cap">Brittle actuation, high token cost, breaks on redesign</p>
+    </div>
+    <div class="ba-panel">
+      <p class="ba-label ba-label--good">With WebMCP</p>
+      <svg class="ba-svg" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="ba-a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#0d9488"/></marker></defs>
+        <rect x="8" y="8" width="304" height="184" rx="10" fill="#fff" stroke="rgba(10,14,20,0.12)"/>
+        <rect x="20" y="20" width="280" height="22" rx="5" fill="rgba(10,14,20,0.06)"/>
+        <circle cx="32" cy="31" r="4" fill="#ef4444"/><circle cx="46" cy="31" r="4" fill="#f59e0b"/><circle cx="60" cy="31" r="4" fill="#22c55e"/>
+        <rect x="78" y="26" width="210" height="10" rx="3" fill="rgba(10,14,20,0.08)"/>
+        <rect x="24" y="52" width="272" height="72" rx="8" fill="rgba(13,148,136,0.06)" stroke="rgba(13,148,136,0.25)"/>
+        <rect x="36" y="64" width="96" height="22" rx="5" fill="#fff" stroke="rgba(10,14,20,0.1)"/>
+        <text x="42" y="79" font-size="9" font-family="ui-monospace,monospace" fill="#0d9488">searchPrograms</text>
+        <rect x="36" y="92" width="118" height="22" rx="5" fill="#fff" stroke="rgba(10,14,20,0.1)"/>
+        <text x="42" y="107" font-size="9" font-family="ui-monospace,monospace" fill="#0d9488">getAdmissionsSteps</text>
+        <path d="M200 76 L248 76 L248 118" fill="none" stroke="#0d9488" stroke-width="2" marker-end="url(#ba-a)"/>
+        <path d="M212 100 L260 100 L260 132" fill="none" stroke="#0d9488" stroke-width="2" marker-end="url(#ba-a)"/>
+        <g transform="translate(268 108)"><circle r="10" fill="#ecfdf5" stroke="#22c55e" stroke-width="1.5"/><path d="M-4 0 L-1 4 L6 -5" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 1)"/></g>
+        <g transform="translate(268 144)"><circle r="10" fill="#ecfdf5" stroke="#22c55e" stroke-width="1.5"/><path d="M-4 0 L-1 4 L6 -5" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 1)"/></g>
+        <circle cx="52" cy="168" r="14" fill="rgba(13,148,136,0.15)" stroke="rgba(13,148,136,0.45)"/>
+        <text x="52" y="172" text-anchor="middle" font-size="11" font-family="system-ui,sans-serif" fill="#0f766e" font-weight="700">AI</text>
+      </svg>
+      <p class="ba-cap">Stable contracts, 89% fewer tokens, survives redesign</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     COMPLIANCE
+     ═══════════════════════════════════════════════ -->
+<section class="comp-section reveal" id="compliance">
+  <div class="sec-head">
+    <h2>Compliance at a glance</h2>
+    <p>Tooling tiers for the pilot — expand only with the controls listed.</p>
+  </div>
+  <div class="comp-grid">
+    <div class="comp-col comp-col--low">
+      <h3>Low risk</h3>
+      <p class="comp-tools"><code>searchPrograms</code> <code>getAdmissionsSteps</code></p>
+      <p class="comp-note">Public data only, no consent needed.</p>
+    </div>
+    <div class="comp-col comp-col--med">
+      <h3>Medium risk</h3>
+      <p class="comp-tools"><code>submitRFI</code> <code>getFinancialAidEstimate</code></p>
+      <p class="comp-note">Browser consent prompt, CCPA flows, audit trail.</p>
+    </div>
+    <div class="comp-col comp-col--high">
+      <h3>High risk (future)</h3>
+      <p class="comp-tools"><code>grades</code> <code>aid status</code></p>
+      <p class="comp-note">Not in pilot. Requires delegated identity, FERPA program.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     ROADMAP
+     ═══════════════════════════════════════════════ -->
+<section class="road-section reveal" id="roadmap">
+  <div class="sec-head">
+    <h2>Roadmap</h2>
+    <p>Fourteen weeks from foundation to go/no-go.</p>
+  </div>
+  <ol class="road-track">
+    <li class="road-phase"><p class="road-when">Phase 0 · Wk 1–2</p><p class="road-name">Foundation</p><p class="road-desc">Legal, security, EPP access</p></li>
+    <li class="road-phase"><p class="road-when">Phase 1 · Wk 3–6</p><p class="road-name">Core tools</p><p class="road-desc">searchPrograms, admissions, manifest</p></li>
+    <li class="road-phase"><p class="road-when">Phase 2 · Wk 7–10</p><p class="road-name">PII tools + defense</p><p class="road-desc">RFI, honeypots, compliance audit</p></li>
+    <li class="road-phase"><p class="road-when">Phase 3 · Wk 11–14</p><p class="road-name">Optimize</p><p class="road-desc">A/B testing, AEO tuning, go/no-go</p></li>
+  </ol>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     PILOT TARGETS
+     ═══════════════════════════════════════════════ -->
+<section class="kpi-section reveal" id="pilot">
+  <div class="sec-head">
+    <h2>Pilot targets</h2>
+    <p>What we measure in the first wave — public journeys and invited agents in scope.</p>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-cell"><strong>&gt;25%</strong><span>RFI lift</span></div>
+    <div class="kpi-cell"><strong>&gt;95%</strong><span>Tool reliability</span></div>
+    <div class="kpi-cell"><strong>0</strong><span>FERPA/CCPA incidents</span></div>
+    <div class="kpi-cell"><strong>&gt;80%</strong><span>Token reduction</span></div>
+    <div class="kpi-cell"><strong>&lt;5s</strong><span>Time-to-first-response</span></div>
+    <div class="kpi-cell"><strong>&gt;70%</strong><span>Scraper trap rate</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     APPENDIX
+     ═══════════════════════════════════════════════ -->
+<section class="appendix-section" id="appendix">
+  <div class="sec-head">
+    <h2>Technical appendix</h2>
+    <p>For engineering and compliance partners — expand when needed.</p>
+  </div>
+  <details>
+    <summary>What is WebMCP in one paragraph?</summary>
+    <div class="app-body"><p>WebMCP is a browser API (W3C Web Machine Learning CG; Chrome early preview) for registering JavaScript "tools" with names, descriptions, and schemas so AI assistants can call them instead of clicking around. It complements backend MCP: same philosophy, different surface — the live page you own.</p></div>
+  </details>
+  <details>
+    <summary>Example: registering a tool</summary>
+    <div class="app-body">
+      <p>Illustrative — API names may evolve with the spec.</p>
+      <div class="code-block"><pre><code>navigator.modelContext.registerTool({
+  name: "searchPrograms",
+  description: "Search UAGC programs by keyword, level, modality",
+  inputSchema: {
+    type: "object",
+    properties: {
+      keyword: { type: "string", description: "e.g. 'education'" },
+      level: { type: "string", enum: ["associate","bachelor","master"] },
+      modality: { type: "string", enum: ["online","hybrid"] }
+    },
+    required: ["keyword"]
+  },
+  execute: async ({ keyword, level, modality }) => {
+    const results = await ProgramService.search({ keyword, level, modality });
+    return { programs: results.map(p => ({
+      id: p.id, name: p.name, level: p.level, url: p.url
+    }))};
+  }
+});</code></pre></div>
+    </div>
+  </details>
+  <details>
+    <summary>Example: .well-known/webmcp manifest</summary>
+    <div class="app-body">
+      <div class="code-block"><pre><code>{
+  "version": "1.0",
+  "institution": "University of Arizona Global Campus",
+  "tools": [
+    { "name": "searchPrograms", "riskLevel": "low",
+      "rateLimit": { "requestsPerMinute": 30 } },
+    { "name": "submitRFI", "riskLevel": "medium",
+      "consent": { "required": true, "scope": "pii-collection" } }
+  ],
+  "capabilities": ["json-rpc-2.0"]
+}</code></pre></div>
+    </div>
+  </details>
+  <details>
+    <summary>Full white paper and references</summary>
+    <div class="app-body"><p>Deep dive: threat model, FERPA tiers, roadmap phases, and 19 citations.</p><p><a href="UAGC_WebMCP_WhitePaper.md" style="color:var(--uagc);font-weight:600">Open UAGC_WebMCP_WhitePaper.md</a></p></div>
+  </details>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FINAL CTA
+     ═══════════════════════════════════════════════ -->
+<section class="final-cta">
+  <h2>Ship the front door. Set the trap.</h2>
+  <p>Approve the pilot scope and defense ethics review.</p>
+  <a href="UAGC_WebMCP_WhitePaper.md">Read the full strategy</a>
+</section>
+
+<footer>UAGC WebMCP · April 2026 · <a href="https://www.w3.org/community/webmachinelearning/">W3C Web Machine Learning CG</a></footer>
+
+<script>
+(function () {
+  // Header scroll toggle
+  var header = document.getElementById('site-header');
+  window.addEventListener('scroll', function () {
+    header.classList.toggle('is-scrolled', window.scrollY > 24);
+  }, { passive: true });
+
+  // Scroll reveal
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('is-visible'); });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+  }
+
+  // Demo autoplay + click sync
+  var demoSection = document.getElementById('demo');
+  var msgs = demoSection.querySelectorAll('.demo-msg');
+  var tools = demoSection.querySelectorAll('.demo-tool');
+  var played = false;
+
+  function setStep(n) {
+    msgs.forEach(function (m) { m.classList.toggle('is-active', m.dataset.step === String(n)); });
+    tools.forEach(function (t) { t.classList.toggle('is-active', t.dataset.step === String(n)); });
+  }
+
+  msgs.forEach(function (m) {
+    m.addEventListener('click', function () { setStep(parseInt(m.dataset.step)); });
+  });
+  tools.forEach(function (t) {
+    t.addEventListener('click', function () { setStep(parseInt(t.dataset.step)); });
+  });
+
+  if ('IntersectionObserver' in window) {
+    var demoIo = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting && !played) {
+          played = true;
+          demoIo.disconnect();
+          msgs.forEach(function (m, i) {
+            setTimeout(function () {
+              m.classList.add('is-visible');
+              setStep(parseInt(m.dataset.step));
+            }, 1200 * (i + 1));
+          });
+        }
+      });
+    }, { threshold: 0.2 });
+    demoIo.observe(demoSection);
+  } else {
+    msgs.forEach(function (m) { m.classList.add('is-visible'); });
+    setStep(1);
+  }
+})();
+</script>
+</body>
+</html>
