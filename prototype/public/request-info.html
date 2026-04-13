@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Request Information — Demo University</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <a href="/" class="logo">Demo University</a>
+      <a href="/programs.html">Programs</a>
+      <a href="/admissions.html">Admissions</a>
+      <a href="/request-info.html">Request Info</a>
+      <a href="/agent.html" class="agent-link">🤖 Agent Demo</a>
+    </nav>
+    <main>
+      <h1>Request information</h1>
+      <p class="lede">
+        Tell us how to reach you and which program interests you. An advisor will follow up with next steps.
+      </p>
+
+      <div class="page-tools">
+        <span class="webmcp-badge" aria-label="WebMCP tools on this page">WebMCP Tool Active</span>
+        <p class="tool-note">
+          <code>submitRFI</code> is registered for this form. Personal data should only be submitted after explicit
+          browser-mediated consent (see confirmation step below), including when an assistant invokes the tool on your
+          behalf.
+        </p>
+      </div>
+
+      <noscript>
+        <div class="noscript-fallback">
+          <p>
+            Submitting this form requires JavaScript for the consent step and API confirmation. Enable JavaScript or use
+            the <a href="/programs.html">program catalog</a> to explore options first.
+          </p>
+        </div>
+      </noscript>
+
+      <div id="form-error" class="alert alert-error hidden" role="alert"></div>
+      <div id="form-success" class="alert alert-success hidden" role="status"></div>
+
+      <form id="rfi-form" class="card" style="max-width: 36rem">
+        <div class="form-row-group">
+          <div class="form-row">
+            <label for="firstName">First name</label>
+            <input type="text" id="firstName" name="firstName" autocomplete="given-name" required />
+          </div>
+          <div class="form-row">
+            <label for="lastName">Last name</label>
+            <input type="text" id="lastName" name="lastName" autocomplete="family-name" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" required />
+        </div>
+        <div class="form-row">
+          <label for="phone">Phone <span style="font-weight: 400; color: #718096">(optional)</span></label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" />
+        </div>
+        <div class="form-row">
+          <label for="programInterest">Program interest</label>
+          <select id="programInterest" name="programInterest" required>
+            <option value="">Loading programs…</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" id="rfi-submit">Submit request</button>
+      </form>
+
+      <div class="consent-dialog" id="rfi-consent" aria-hidden="true">
+        <div class="consent-dialog-panel" role="document">
+          <h2>Confirm submission</h2>
+          <p>
+            You are about to send your contact information to Demo University for this prototype. This simulates a
+            real request-for-information flow with browser-mediated consent.
+          </p>
+          <div class="consent-dialog-actions">
+            <button type="button" class="btn btn-secondary" id="consent-cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" id="consent-confirm">Agree and send</button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="site-footer">
+      <p style="margin: 0">&copy; <span id="y"></span> Demo University. Fictional institution for demonstration purposes.</p>
+    </footer>
+    <script>
+      document.getElementById('y').textContent = new Date().getFullYear();
+    </script>
+    <script src="/js/webmcp-polyfill.js"></script>
+    <script src="/js/register-tools.js"></script>
+    <script>
+      (function () {
+        var form = document.getElementById('rfi-form');
+        var programSelect = document.getElementById('programInterest');
+        var formError = document.getElementById('form-error');
+        var formSuccess = document.getElementById('form-success');
+        var consent = document.getElementById('rfi-consent');
+        var pendingPayload = null;
+
+        function showError(msg) {
+          formError.textContent = msg;
+          formError.classList.remove('hidden');
+        }
+
+        function clearError() {
+          formError.classList.add('hidden');
+          formError.textContent = '';
+        }
+
+        function escapeHtml(s) {
+          return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+        }
+
+        function openConsent() {
+          consent.classList.add('is-open');
+          consent.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeConsent() {
+          consent.classList.remove('is-open');
+          consent.setAttribute('aria-hidden', 'true');
+          pendingPayload = null;
+        }
+
+        function populatePrograms() {
+          return fetch('/api/programs/search?keyword=a')
+            .then(function (r) {
+              return r.json().then(function (j) {
+                if (!r.ok) throw new Error((j && j.error) || 'Unable to load programs');
+                return j;
+              });
+            })
+            .then(function (data) {
+              var programs = data.programs || [];
+              programSelect.innerHTML = '<option value="">Select a program</option>';
+              programs.forEach(function (p) {
+                var opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.name;
+                programSelect.appendChild(opt);
+              });
+            })
+            .catch(function () {
+              programSelect.innerHTML = '<option value="">Unable to load programs</option>';
+            });
+        }
+
+        document.getElementById('consent-cancel').addEventListener('click', closeConsent);
+        document.getElementById('consent-confirm').addEventListener('click', function () {
+          if (!pendingPayload) {
+            closeConsent();
+            return;
+          }
+          clearError();
+          fetch('/api/rfi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pendingPayload)
+          })
+            .then(function (r) {
+              return r.json().then(function (j) {
+                if (!r.ok) throw new Error((j && j.error) || 'Submission failed');
+                return j;
+              });
+            })
+            .then(function (res) {
+              closeConsent();
+              formSuccess.textContent =
+                'Thank you. Your reference number is ' +
+                escapeHtml(res.refNumber || '') +
+                '. We will follow up within ' +
+                escapeHtml(String(res.followUp || '24h')) +
+                '.';
+              formSuccess.classList.remove('hidden');
+              form.reset();
+              populatePrograms();
+            })
+            .catch(function (e) {
+              closeConsent();
+              showError(e.message || 'Submission failed');
+            });
+        });
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          clearError();
+          formSuccess.classList.add('hidden');
+          var payload = {
+            firstName: document.getElementById('firstName').value.trim(),
+            lastName: document.getElementById('lastName').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            programInterest: programSelect.value.trim()
+          };
+          pendingPayload = payload;
+          openConsent();
+        });
+
+        window.addEventListener('DOMContentLoaded', populatePrograms);
+      })();
+    </script>
+  </body>
+</html>

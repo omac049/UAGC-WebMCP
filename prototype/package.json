@@ -1,0 +1,13 @@
+{
+  "name": "webmcp-prototype",
+  "version": "1.0.0",
+  "description": "Working prototype of WebMCP dual-layer architecture for higher education",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

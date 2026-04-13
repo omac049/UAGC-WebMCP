@@ -1,0 +1,172 @@
+[
+  {
+    "id": "med-curriculum",
+    "name": "Master of Education in Curriculum & Instruction",
+    "level": "master",
+    "modality": "online",
+    "credits": 36,
+    "costPerCredit": 450,
+    "description": "Prepare to design and evaluate curriculum for K-12 and adult learning environments. Focuses on instructional design, assessment strategies, and educational technology integration.",
+    "outcomes": [
+      "Design evidence-based curricula aligned with state and national standards",
+      "Evaluate instructional programs using data-driven methodologies",
+      "Integrate educational technology into teaching practice",
+      "Lead curriculum reform initiatives at the school or district level"
+    ],
+    "requirements": [
+      "Bachelor's degree from an accredited institution",
+      "Minimum 2.5 cumulative GPA",
+      "Teaching license or relevant professional experience",
+      "Statement of purpose"
+    ],
+    "url": "/programs.html?id=med-curriculum"
+  },
+  {
+    "id": "med-leadership",
+    "name": "Master of Education in Educational Leadership",
+    "level": "master",
+    "modality": "online",
+    "credits": 39,
+    "costPerCredit": 475,
+    "description": "Develop the skills to lead schools, districts, and educational organizations. Covers leadership theory, school finance, policy analysis, and community engagement.",
+    "outcomes": [
+      "Apply leadership theories to real-world educational settings",
+      "Manage school budgets and resource allocation effectively",
+      "Navigate educational policy at local, state, and federal levels",
+      "Build inclusive school cultures that support all learners"
+    ],
+    "requirements": [
+      "Bachelor's degree from an accredited institution",
+      "Minimum 3.0 cumulative GPA",
+      "Two years of teaching or educational experience",
+      "Two professional recommendation letters"
+    ],
+    "url": "/programs.html?id=med-leadership"
+  },
+  {
+    "id": "mat-teaching",
+    "name": "Master of Arts in Teaching",
+    "level": "master",
+    "modality": "online",
+    "credits": 42,
+    "costPerCredit": 425,
+    "description": "Designed for career changers and aspiring teachers. Combines pedagogical theory with extensive field experience to prepare you for initial licensure.",
+    "outcomes": [
+      "Demonstrate proficiency in content-area teaching methods",
+      "Create inclusive and culturally responsive classrooms",
+      "Apply formative and summative assessment strategies",
+      "Meet state requirements for initial teaching licensure"
+    ],
+    "requirements": [
+      "Bachelor's degree from an accredited institution",
+      "Minimum 2.75 cumulative GPA",
+      "Background check clearance",
+      "Content area proficiency (Praxis or equivalent)"
+    ],
+    "url": "/programs.html?id=mat-teaching"
+  },
+  {
+    "id": "bs-business",
+    "name": "Bachelor of Science in Business Administration",
+    "level": "bachelor",
+    "modality": "online",
+    "credits": 120,
+    "costPerCredit": 350,
+    "description": "Build a strong foundation in management, marketing, finance, and operations. Prepares graduates for leadership roles across industries.",
+    "outcomes": [
+      "Analyze business problems using quantitative and qualitative methods",
+      "Develop strategic plans for organizational growth",
+      "Apply ethical decision-making frameworks in business contexts",
+      "Communicate effectively in professional settings"
+    ],
+    "requirements": [
+      "High school diploma or equivalent",
+      "No minimum GPA required for admission",
+      "Official transcripts from all prior institutions"
+    ],
+    "url": "/programs.html?id=bs-business"
+  },
+  {
+    "id": "bs-healthcare",
+    "name": "Bachelor of Science in Healthcare Administration",
+    "level": "bachelor",
+    "modality": "online",
+    "credits": 120,
+    "costPerCredit": 365,
+    "description": "Prepare for management roles in hospitals, clinics, insurance companies, and public health organizations. Covers health policy, informatics, and operations management.",
+    "outcomes": [
+      "Manage healthcare delivery systems and operations",
+      "Navigate healthcare regulations and compliance requirements",
+      "Apply health informatics tools for decision-making",
+      "Lead quality improvement initiatives in healthcare settings"
+    ],
+    "requirements": [
+      "High school diploma or equivalent",
+      "Official transcripts from all prior institutions",
+      "Recommended: experience in a healthcare setting"
+    ],
+    "url": "/programs.html?id=bs-healthcare"
+  },
+  {
+    "id": "as-it",
+    "name": "Associate of Science in Information Technology",
+    "level": "associate",
+    "modality": "online",
+    "credits": 60,
+    "costPerCredit": 300,
+    "description": "An accelerated pathway into IT careers. Covers networking fundamentals, cybersecurity basics, database management, and help desk operations.",
+    "outcomes": [
+      "Configure and troubleshoot computer networks",
+      "Implement basic cybersecurity measures",
+      "Manage relational databases using SQL",
+      "Provide effective technical support in enterprise environments"
+    ],
+    "requirements": [
+      "High school diploma or equivalent",
+      "No minimum GPA required"
+    ],
+    "url": "/programs.html?id=as-it"
+  },
+  {
+    "id": "cert-data-analytics",
+    "name": "Certificate in Data Analytics",
+    "level": "certificate",
+    "modality": "online",
+    "credits": 18,
+    "costPerCredit": 400,
+    "description": "A focused credential in data analysis, visualization, and statistical reasoning. Ideal for professionals looking to add analytical skills to their career toolkit.",
+    "outcomes": [
+      "Clean, transform, and analyze datasets using industry tools",
+      "Create compelling data visualizations for stakeholder communication",
+      "Apply statistical methods to business decision-making",
+      "Build dashboards and automated reports"
+    ],
+    "requirements": [
+      "Bachelor's degree or equivalent professional experience",
+      "Basic proficiency in spreadsheet software"
+    ],
+    "url": "/programs.html?id=cert-data-analytics"
+  },
+  {
+    "id": "edd-org-leadership",
+    "name": "Doctor of Education in Organizational Leadership",
+    "level": "doctorate",
+    "modality": "hybrid",
+    "credits": 60,
+    "costPerCredit": 650,
+    "description": "A practitioner-focused doctoral program for experienced leaders. Integrates research methodology with applied leadership challenges in education, business, and nonprofit sectors.",
+    "outcomes": [
+      "Conduct original applied research addressing organizational challenges",
+      "Lead transformative change in complex organizations",
+      "Apply advanced theories of leadership, ethics, and social justice",
+      "Contribute to scholarly and practitioner literature"
+    ],
+    "requirements": [
+      "Master's degree from an accredited institution",
+      "Minimum 3.25 cumulative GPA in graduate work",
+      "Five years of professional leadership experience",
+      "Writing sample and interview"
+    ],
+    "url": "/programs.html?id=edd-org-leadership"
+  }
+]

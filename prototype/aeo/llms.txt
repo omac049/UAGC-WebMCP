@@ -1,0 +1,23 @@
+# Demo University
+
+> Demo University is a fictional online institution created to demonstrate the WebMCP (Web Model Context Protocol) standard. This prototype shows how universities can expose structured tools for AI agent interaction.
+
+## Relevant for:
+- AI agents helping prospective students explore educational programs
+- Agents comparing tuition, admissions requirements, and financial aid
+- Automated workflows for student enrollment inquiries
+
+## Key pages:
+- [Programs](http://localhost:3000/programs.html): Search and browse all academic programs by level, modality, and subject area
+- [Admissions](http://localhost:3000/admissions.html): Step-by-step admissions process by program level and student type
+- [Request Info](http://localhost:3000/request-info.html): Submit a request for information (RFI) about specific programs
+- [Agent Demo](http://localhost:3000/agent.html): Interactive demo of WebMCP tool invocation
+
+## WebMCP tools:
+- [Tool Manifest](http://localhost:3000/.well-known/webmcp): Machine-readable registry of all available WebMCP tools
+
+## Out of scope:
+- Student portal and course management (requires authentication)
+- Grade submission and academic records (FERPA-protected)
+- Internal administrative systems
+- Real-time class availability and enrollment counts

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admissions — Demo University</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <a href="/" class="logo">Demo University</a>
+      <a href="/programs.html">Programs</a>
+      <a href="/admissions.html">Admissions</a>
+      <a href="/request-info.html">Request Info</a>
+      <a href="/agent.html" class="agent-link">🤖 Agent Demo</a>
+    </nav>
+    <main>
+      <h1>Admissions</h1>
+      <p class="lede">
+        Choose your program level and student type to see the recommended enrollment steps for Demo University. This
+        guidance is illustrative for the prototype.
+      </p>
+
+      <div class="page-tools">
+        <span class="webmcp-badge" aria-label="WebMCP tools on this page">WebMCP Tool Active</span>
+        <p class="tool-note"><code>getAdmissionsSteps</code> is registered for this page.</p>
+      </div>
+
+      <noscript>
+        <div class="noscript-fallback">
+          <p>
+            Select options below are shown, but step timelines load from the server with JavaScript. Enable JavaScript
+            or contact admissions through <a href="/request-info.html">Request Info</a>.
+          </p>
+        </div>
+      </noscript>
+
+      <div class="form-row-group" style="margin-bottom: 1.5rem">
+        <div class="form-row">
+          <label for="programLevel">Program level</label>
+          <select id="programLevel" name="programLevel">
+            <option value="">Select level</option>
+            <option value="associate">Associate</option>
+            <option value="bachelor">Bachelor</option>
+            <option value="master">Master</option>
+            <option value="doctorate">Doctorate</option>
+            <option value="certificate">Certificate</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="studentType">Student type</label>
+          <select id="studentType" name="studentType">
+            <option value="new">New student</option>
+            <option value="transfer">Transfer</option>
+            <option value="returning">Returning</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="adm-error" class="alert alert-error hidden" role="alert"></div>
+
+      <section aria-labelledby="steps-heading">
+        <h2 id="steps-heading" class="section-title" style="margin-top: 0">Your enrollment path</h2>
+        <p id="adm-placeholder" class="placeholder-text">Select a program level to load steps from the catalog.</p>
+        <ol class="timeline hidden" id="adm-timeline" aria-live="polite"></ol>
+      </section>
+
+      <h2 class="section-title">Reference: levels at a glance</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Level</th>
+            <th scope="col">Typical time to complete</th>
+            <th scope="col">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Associate</td>
+            <td>18–24 months</td>
+            <td>Foundational coursework and career entry credentials</td>
+          </tr>
+          <tr>
+            <td>Bachelor</td>
+            <td>3–4 years</td>
+            <td>Undergraduate majors aligned to workforce needs</td>
+          </tr>
+          <tr>
+            <td>Master</td>
+            <td>12–24 months</td>
+            <td>Graduate-level specialization</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+    <footer class="site-footer">
+      <p style="margin: 0">&copy; <span id="y"></span> Demo University. Fictional institution for demonstration purposes.</p>
+    </footer>
+    <script>
+      document.getElementById('y').textContent = new Date().getFullYear();
+    </script>
+    <script src="/js/webmcp-polyfill.js"></script>
+    <script src="/js/register-tools.js"></script>
+    <script>
+      (function () {
+        var levelEl = document.getElementById('programLevel');
+        var typeEl = document.getElementById('studentType');
+        var timeline = document.getElementById('adm-timeline');
+        var placeholder = document.getElementById('adm-placeholder');
+        var err = document.getElementById('adm-error');
+
+        function showError(msg) {
+          err.textContent = msg;
+          err.classList.remove('hidden');
+        }
+
+        function clearError() {
+          err.classList.add('hidden');
+          err.textContent = '';
+        }
+
+        function escapeHtml(s) {
+          return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+        }
+
+        function fetchSteps() {
+          var level = levelEl.value.trim();
+          if (!level) {
+            timeline.classList.add('hidden');
+            timeline.innerHTML = '';
+            placeholder.classList.remove('hidden');
+            placeholder.textContent = 'Select a program level to load steps from the catalog.';
+            clearError();
+            return;
+          }
+          clearError();
+          placeholder.textContent = 'Loading…';
+          placeholder.classList.remove('hidden');
+          timeline.classList.add('hidden');
+          var qs =
+            'programLevel=' +
+            encodeURIComponent(level) +
+            '&studentType=' +
+            encodeURIComponent(typeEl.value || 'new');
+          fetch('/api/admissions?' + qs)
+            .then(function (r) {
+              return r.json().then(function (j) {
+                if (!r.ok) throw new Error((j && j.error) || 'Unable to load steps');
+                return j;
+              });
+            })
+            .then(function (data) {
+              var steps = data.steps || [];
+              if (!steps.length) {
+                showError('No steps returned for this combination.');
+                placeholder.classList.add('hidden');
+                return;
+              }
+              placeholder.classList.add('hidden');
+              timeline.innerHTML = '';
+              steps.forEach(function (s) {
+                var li = document.createElement('li');
+                li.setAttribute('data-step', String(s.step != null ? s.step : ''));
+                var title = escapeHtml(s.title || '');
+                var desc = escapeHtml(s.description || '');
+                var link = s.link
+                  ? '<a href="' + escapeHtml(s.link) + '">Next action</a>'
+                  : '';
+                li.innerHTML = '<h3>' + title + '</h3><p>' + desc + '</p>' + link;
+                timeline.appendChild(li);
+              });
+              timeline.classList.remove('hidden');
+            })
+            .catch(function (e) {
+              showError(e.message || 'Unable to load steps');
+              placeholder.classList.add('hidden');
+            });
+        }
+
+        levelEl.addEventListener('change', fetchSteps);
+        typeEl.addEventListener('change', fetchSteps);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Demo University</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <nav>
+      <a href="/" class="logo">Demo University</a>
+      <a href="/programs.html">Programs</a>
+      <a href="/admissions.html">Admissions</a>
+      <a href="/request-info.html">Request Info</a>
+      <a href="/agent.html" class="agent-link">🤖 Agent Demo</a>
+    </nav>
+    <main>
+      <header class="hero">
+        <h1>Welcome to Demo University</h1>
+        <p class="lede">
+          Flexible online programs designed for working adults. Earn your credential on your schedule with
+          support from faculty and advisors who focus on your goals.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/programs.html">Browse programs</a>
+          <a class="btn btn-secondary btn-hero-subtle" href="/admissions.html">Admissions</a>
+          <a class="btn btn-secondary btn-hero-agent" href="/agent.html">Try the agent</a>
+        </div>
+      </header>
+
+      <h2 class="section-title">Why students choose us</h2>
+      <div class="card-grid">
+        <article class="card">
+          <h3>Affordable tuition</h3>
+          <p>Transparent per-credit pricing and financial aid guidance help you plan your investment in your future.</p>
+        </article>
+        <article class="card">
+          <h3>Flexible scheduling</h3>
+          <p>Asynchronous courses and multiple start dates each year make it easier to balance school with work and family.</p>
+        </article>
+        <article class="card">
+          <h3>Accredited programs</h3>
+          <p>Rigorous curricula aligned to professional standards prepare you for the next step in your career.</p>
+        </article>
+      </div>
+
+      <section class="callout" aria-labelledby="webmcp-heading">
+        <h2 id="webmcp-heading">This site is WebMCP-enabled</h2>
+        <p>
+          Demo University participates in a prototype of the WebMCP model: when you use a compatible browser and
+          assistant, structured tools registered on each page can search programs, fetch admissions steps, and complete
+          other tasks—with your visibility and consent, especially when personal information is involved.
+        </p>
+        <p style="margin-bottom: 0">
+          <a href="/programs.html">Explore the program catalog</a> ·
+          <a href="/request-info.html">Request information</a> ·
+          <a href="/agent.html">Open the agent demo</a>
+        </p>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <p style="margin: 0">&copy; <span id="y"></span> Demo University. Fictional institution for demonstration purposes.</p>
+    </footer>
+    <script>
+      document.getElementById('y').textContent = new Date().getFullYear();
+    </script>
+    <script src="/js/webmcp-polyfill.js"></script>
+    <script src="/js/register-tools.js"></script>
+  </body>
+</html>
