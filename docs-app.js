@@ -6,6 +6,23 @@
   ];
   var DEFAULT_DOC = ALLOWED_DOCS[0];
 
+  function slugify(text) {
+    return text.toLowerCase()
+      .replace(/<[^>]*>/g, '')
+      .replace(/&[^;]+;/g, '')
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  var renderer = new marked.Renderer();
+  renderer.heading = function (data) {
+    var id = slugify(data.text);
+    return '<h' + data.depth + ' id="' + id + '">' + data.text + '</h' + data.depth + '>\n';
+  };
+  marked.use({ renderer: renderer });
+
   var articleEl = document.getElementById('article');
   var loaderEl = document.getElementById('loader');
   var navLinks = document.querySelectorAll('[data-doc]');
@@ -19,9 +36,8 @@
     if (parts.length === 2 && ALLOWED_DOCS.indexOf(parts[0]) !== -1) {
       return { doc: parts[0], anchor: parts[1] };
     }
-    var el = document.getElementById(raw);
-    if (el && currentDoc) return { doc: currentDoc, anchor: raw };
-    return { doc: DEFAULT_DOC, anchor: null };
+    if (currentDoc) return { doc: currentDoc, anchor: raw };
+    return { doc: DEFAULT_DOC, anchor: raw };
   }
 
   function setActiveNav(doc) {
