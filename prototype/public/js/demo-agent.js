@@ -517,7 +517,7 @@
 
   appendMessage(
     'agent',
-    '<p><strong>Hi, welcome to Demo University.</strong> I\'m an AI assistant powered by this site\'s WebMCP tools.</p>' +
+    '<p><strong>Hi, welcome to UAGC.</strong> I\'m an AI assistant powered by this site\'s WebMCP tools.</p>' +
     '<p>Try asking me something like:</p>' +
     '<ul class="agent-list">' +
     '<li><strong>Find me an online master\'s in education</strong></li>' +

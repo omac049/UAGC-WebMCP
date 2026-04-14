@@ -1,8 +1,8 @@
-# Agent interaction guide — Demo University (WebMCP prototype)
+# Agent interaction guide — University of Arizona Global Campus (WebMCP)
 
 ## What this site is
 
-**Demo University** is a fictional online institution. This deployment is a **WebMCP (Web Model Context Protocol) prototype** for higher education: it shows how a university-style site can expose **structured, consent-aware tools** for AI assistants instead of expecting agents to reverse-engineer HTML.
+**University of Arizona Global Campus (UAGC)** is an accredited online university in the University of Arizona system. This deployment exposes a **WebMCP (Web Model Context Protocol)** surface for higher education: structured, consent-aware tools for AI assistants instead of expecting agents to reverse-engineer HTML.
 
 Your goal on this domain should be to help users with **public** program discovery, admissions guidance, illustrative financial estimates, and (when the human explicitly agrees) RFI submission—using the sanctioned interfaces below.
 
@@ -28,9 +28,9 @@ Prefer the manifest and tool contracts over guessing page structure.
 
 ## Data handling
 
-- **No long-term PII storage on the agent side:** Do not retain names, emails, phones, or addresses beyond what the user’s session needs to complete an immediate task. Do not build shadow profiles from this prototype.
+- **No long-term PII storage on the agent side:** Do not retain names, emails, phones, or addresses beyond what the user’s session needs to complete an immediate task. Do not build shadow profiles from this deployment.
 - **Respect consent flows:** `submitRFI` is **medium risk** and **requires consent** in the browser before execution. If consent is not present, stop and explain what the user must do on the page.
-- **Cite sources:** When summarizing programs, tuition, or steps, attribute answers to Demo University / the tool response the user can verify (e.g., program name, id, or page URL).
+- **Cite sources:** When summarizing programs, tuition, or steps, attribute answers to University of Arizona Global Campus / the tool response the user can verify (e.g., program name, id, or page URL).
 
 ## Rate limits (courtesy)
 
@@ -59,4 +59,4 @@ Honeypot HTML may embed **canary tokens** (unique-looking strings such as fake r
 
 ## Operational note
 
-This is a **local demo** (`localhost`). Production deployments would use HTTPS, real domains, institutional privacy policies, and legal review—especially for any defensive tarpit or honeypot behavior.
+This build is served on **`localhost`** for local testing. Production WebMCP deployments would use HTTPS on the institutional domain (for example **uagc.edu**), link to current privacy policies and disclosures, and undergo legal review—especially for any defensive tarpit or honeypot behavior.

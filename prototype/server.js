@@ -56,7 +56,7 @@ app.get('/.well-known/webmcp', (req, res) => {
 const base = `http://localhost:${PORT}`;
 
 app.listen(PORT, () => {
-  console.log(`Demo University WebMCP Prototype running at ${base}`);
+  console.log(`UAGC WebMCP Prototype running at ${base}`);
   console.log(`Site: ${base}/`);
   console.log(`Agent demo: ${base}/agents.md`);
   console.log(`Manifest: ${base}/.well-known/webmcp`);

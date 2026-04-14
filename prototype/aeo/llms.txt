@@ -1,6 +1,6 @@
-# Demo University
+# University of Arizona Global Campus (UAGC)
 
-> Demo University is a fictional online institution created to demonstrate the WebMCP (Web Model Context Protocol) standard. This prototype shows how universities can expose structured tools for AI agent interaction.
+> The University of Arizona Global Campus (UAGC) is an accredited online university within the University of Arizona system, offering flexible degree and certificate programs for working adults and transfer students. This site exposes a WebMCP (Web Model Context Protocol) layer so AI assistants can use structured, consent-aware tools for public program discovery, admissions guidance, and illustrative financial information—aligned with how modern institutions publish machine-readable context for agents.
 
 ## Relevant for:
 - AI agents helping prospective students explore educational programs

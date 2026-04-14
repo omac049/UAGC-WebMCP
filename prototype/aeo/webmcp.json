@@ -1,10 +1,10 @@
 {
   "version": "1.0",
   "institution": {
-    "name": "Demo University",
-    "domain": "localhost:3000",
+    "name": "University of Arizona Global Campus",
+    "domain": "uagc.edu",
     "type": "higher-education",
-    "description": "WebMCP prototype demonstrating structured AI agent access for university websites"
+    "description": "Accredited online university in the University of Arizona system; WebMCP exposes structured, consent-aware tools for program discovery, admissions guidance, and illustrative aid estimates."
   },
   "tools": [
     {
@@ -48,5 +48,5 @@
     }
   ],
   "capabilities": ["json-rpc-2.0"],
-  "contact": "webmcp-admin@demo-university.edu"
+  "contact": "webmcp-admin@uagc.edu"
 }

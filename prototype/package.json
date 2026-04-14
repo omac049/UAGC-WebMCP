@@ -1,7 +1,7 @@
 {
-  "name": "webmcp-prototype",
+  "name": "uagc-webmcp-prototype",
   "version": "1.0.0",
-  "description": "Working prototype of WebMCP dual-layer architecture for higher education",
+  "description": "Working prototype of WebMCP dual-layer architecture for University of Arizona Global Campus",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

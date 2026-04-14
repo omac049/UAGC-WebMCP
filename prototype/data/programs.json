@@ -19,7 +19,7 @@
       "Teaching license or relevant professional experience",
       "Statement of purpose"
     ],
-    "url": "/programs.html?id=med-curriculum"
+    "url": "https://www.uagc.edu/online-degrees?id=med-curriculum"
   },
   {
     "id": "med-leadership",
@@ -41,7 +41,7 @@
       "Two years of teaching or educational experience",
       "Two professional recommendation letters"
     ],
-    "url": "/programs.html?id=med-leadership"
+    "url": "https://www.uagc.edu/online-degrees?id=med-leadership"
   },
   {
     "id": "mat-teaching",
@@ -63,7 +63,7 @@
       "Background check clearance",
       "Content area proficiency (Praxis or equivalent)"
     ],
-    "url": "/programs.html?id=mat-teaching"
+    "url": "https://www.uagc.edu/online-degrees?id=mat-teaching"
   },
   {
     "id": "bs-business",
@@ -84,7 +84,7 @@
       "No minimum GPA required for admission",
       "Official transcripts from all prior institutions"
     ],
-    "url": "/programs.html?id=bs-business"
+    "url": "https://www.uagc.edu/online-degrees?id=bs-business"
   },
   {
     "id": "bs-healthcare",
@@ -105,7 +105,7 @@
       "Official transcripts from all prior institutions",
       "Recommended: experience in a healthcare setting"
     ],
-    "url": "/programs.html?id=bs-healthcare"
+    "url": "https://www.uagc.edu/online-degrees?id=bs-healthcare"
   },
   {
     "id": "as-it",
@@ -125,7 +125,7 @@
       "High school diploma or equivalent",
       "No minimum GPA required"
     ],
-    "url": "/programs.html?id=as-it"
+    "url": "https://www.uagc.edu/online-degrees?id=as-it"
   },
   {
     "id": "cert-data-analytics",
@@ -145,7 +145,7 @@
       "Bachelor's degree or equivalent professional experience",
       "Basic proficiency in spreadsheet software"
     ],
-    "url": "/programs.html?id=cert-data-analytics"
+    "url": "https://www.uagc.edu/online-degrees?id=cert-data-analytics"
   },
   {
     "id": "edd-org-leadership",
@@ -167,6 +167,6 @@
       "Five years of professional leadership experience",
       "Writing sample and interview"
     ],
-    "url": "/programs.html?id=edd-org-leadership"
+    "url": "https://www.uagc.edu/online-degrees?id=edd-org-leadership"
   }
 ]

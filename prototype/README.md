@@ -2,7 +2,7 @@
 
 ## 1. What this is
 
-This folder is a **small Express + static HTML** demo of **Demo University**, a fictional online school. **Layer 1** exposes enrollment-oriented capabilities as **WebMCP-registered tools** backed by JSON APIs. **Layer 2** adds optional **tarpit middleware**: request scoring, artificial delays, redirects into a **synthetic “maze”**, and **canary strings** in honeypot content to illustrate deterrence for unauthorized scraping.
+This folder is a **small Express + static HTML** prototype built by **University of Arizona Global Campus (UAGC)**. **Layer 1** exposes enrollment-oriented capabilities as **WebMCP-registered tools** backed by JSON APIs. **Layer 2** adds optional **tarpit middleware**: request scoring, artificial delays, redirects into a **synthetic “maze”**, and **canary strings** in honeypot content to illustrate deterrence for unauthorized scraping.
 
 ## 2. Quick start
 
