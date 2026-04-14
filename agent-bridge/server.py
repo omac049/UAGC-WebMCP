@@ -162,6 +162,8 @@ def build_mcp(cache: BridgeCache) -> FastMCP:
 
     mcp = FastMCP(name="UAGC Agent Bridge", instructions=instructions)
 
+    MAX_INPUT_LEN = 500
+
     @mcp.tool(
         name="searchPrograms",
         description=(
@@ -175,6 +177,7 @@ def build_mcp(cache: BridgeCache) -> FastMCP:
         area: AreaFilter | None = None,
     ) -> dict[str, Any]:
         try:
+            keyword = keyword[:MAX_INPUT_LEN]
             words = [w for w in re.split(r"\s+", keyword.strip()) if w]
             if not words:
                 return _error("INVALID_INPUT", "keyword must contain at least one non-empty word.")
@@ -205,7 +208,7 @@ def build_mcp(cache: BridgeCache) -> FastMCP:
     )
     def getProgramDetails(programId: str) -> dict[str, Any]:
         try:
-            pid = programId.strip()
+            pid = programId[:MAX_INPUT_LEN].strip()
             if not pid:
                 return _error("INVALID_INPUT", "programId is required.")
             program = cache.programs_by_id.get(pid)
@@ -360,17 +363,19 @@ def build_mcp(cache: BridgeCache) -> FastMCP:
             if not local_part or not at_sep or "." not in domain:
                 return _error("VALIDATION_ERROR", "email does not appear to be valid.")
 
+            fn = fn[:100]
+            ln = ln[:100]
+            em = em[:254]
+            prog = prog[:MAX_INPUT_LEN]
+            ph = ph[:20] if ph else None
+            st = st[:50] if st else None
+
             ref = f"UAGC-2026-{secrets.randbelow(100_000):05d}"
-            payload = {
-                "referenceNumber": ref,
-                "firstName": fn,
-                "lastName": ln,
-                "email": em,
-                "phone": ph,
-                "programInterest": prog,
-                "state": st,
-            }
-            logger.info("RFI (bridge mode, not posted): %s", json.dumps(payload, default=str))
+            redacted_email = em.split("@")[0][:2] + "***@" + em.split("@")[-1] if "@" in em else "***"
+            logger.info(
+                "RFI (bridge mode): ref=%s program=%s email=%s",
+                ref, prog, redacted_email,
+            )
 
             return {
                 "referenceNumber": ref,
@@ -391,6 +396,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="UAGC Agent Bridge MCP server (SSE).")
     parser.add_argument("--port", type=int, default=8000, help="Port to bind (default: 8000).")
     parser.add_argument(
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="Host to bind (default: 127.0.0.1). Use 0.0.0.0 only if you need direct LAN access.",
+    )
+    parser.add_argument(
         "--cache-dir",
         type=Path,
         default=Path("./cache"),
@@ -402,7 +413,7 @@ def main() -> None:
     cache = load_bridge_cache(cache_dir)
     mcp = build_mcp(cache)
 
-    mcp.run(transport="streamable-http", host="0.0.0.0", port=args.port)
+    mcp.run(transport="streamable-http", host=args.host, port=args.port)
 
 
 if __name__ == "__main__":
