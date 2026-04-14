@@ -9,6 +9,24 @@
 | [White Paper](./UAGC_WebMCP_WhitePaper.md) | Full research paper v2.0 (~10,900 words, 53 references): *UAGC WebMCP: Building a Dual-Layer Agentic Web Strategy* — covers WebMCP API dictionary, browser support matrix, Nepenthes operational details, tarpit ecosystem comparison, canary token methodology, legal landscape for tarpits, FERPA/CCPA/GLBA with CFR citations, school official exception analysis, state AI regulations, accreditor guidance, AEO confirmed-vs-speculative analysis, competitive landscape, and implementation roadmap |
 | [HTML executive brief](./index.html) | **Agentflow** layout: left-to-right invited vs. defense paths, three-line story, pilot KPIs; technical detail in collapsible appendix — for exec teams |
 
+## Agent Bridge (Live)
+
+The **agent bridge** (`agent-bridge/`) is the production MCP server component. It scrapes real data from the live uagc.edu site, caches it as structured JSON, and exposes it through MCP tools over SSE — connectable to ChatGPT, Claude Desktop, Cursor, and any MCP client.
+
+| Component | Description |
+|-----------|-------------|
+| [Agent Bridge](./agent-bridge/) | Python FastMCP server with 5 tools: searchPrograms, getProgramDetails, getAdmissionsSteps, getFinancialAidEstimate, submitRFI |
+| [Scraper](./agent-bridge/scraper.py) | Fetches live uagc.edu content and structures it into cached JSON |
+| [AEO Files](./agent-bridge/aeo/) | Discovery files: webmcp.json manifest, llms.txt, agents.md |
+
+**Quick start:**
+```bash
+cd agent-bridge
+pip install -r requirements.txt
+python scraper.py        # scrape uagc.edu → cache/
+python server.py         # start MCP server on :8000
+```
+
 ## Quick Links
 
 - [WebMCP W3C Spec](https://webmachinelearning.github.io/webmcp/)
