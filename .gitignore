@@ -1,4 +1,5 @@
 # ── Local-only components (never push to public repo) ──
+AGENTS.md
 agent-bridge/
 prototype/
 
