@@ -18,3 +18,4 @@
 - A `prototype/` directory provides a self-contained, Node-served WebMCP-style demo (static HTML, sample data, discovery files, chat stub) intended for others to copy and adapt on their own edu sites.
 - The `agent-bridge/` directory contains the production MCP server: a Python FastMCP server that scrapes live uagc.edu data, caches it as structured JSON, and exposes it as MCP tools over SSE. Connectable to ChatGPT, Claude Desktop, Cursor, and any MCP client.
 - The `index.html` landing page includes an interactive narrative demo of WebMCP-style tool calls through `submitRFI`, framed with browser-mediated consent and a confirmation step (illustrative of human-in-the-loop PII, separate from pilot KPIs).
+- The public GitHub site should stay a static, public-facing slice (HTML/CSS and related static assets). `demo.sh`, the runnable prototype, and the full MVP MCP agent bridge are intended to remain local-only—not published as part of that public deployment.
