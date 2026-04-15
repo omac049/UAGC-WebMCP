@@ -1,43 +1,16 @@
-# UAGC WebMCP Pilot — Advanced Plan
+# UAGC WebMCP Pilot — Strategy & Presentation
 
-**Purpose:** Build on the earlier plan by providing a deeper technical and strategic blueprint for UAGC's WebMCP pilot. The objective is to safely explore how agent-native interactions can streamline public-site support journeys while maintaining privacy, security and regulatory compliance.
+**Purpose:** Strategic blueprint for UAGC's WebMCP pilot — exploring how agent-native interactions can streamline public-site support journeys while maintaining privacy, security, and regulatory compliance.
 
 ## Documents
 
 | Document | Description |
 |----------|-------------|
-| [White Paper](./UAGC_WebMCP_WhitePaper.md) | Full research paper v2.0 (~10,900 words, 53 references): *UAGC WebMCP: Building a Dual-Layer Agentic Web Strategy* — covers WebMCP API dictionary, browser support matrix, Nepenthes operational details, tarpit ecosystem comparison, canary token methodology, legal landscape for tarpits, FERPA/CCPA/GLBA with CFR citations, school official exception analysis, state AI regulations, accreditor guidance, AEO confirmed-vs-speculative analysis, competitive landscape, and implementation roadmap |
-| [HTML executive brief](./index.html) | **Agentflow** layout: left-to-right invited vs. defense paths, three-line story, pilot KPIs; technical detail in collapsible appendix — for exec teams |
-
-## Agent Bridge (Live)
-
-The **agent bridge** (`agent-bridge/`) is the production MCP server component. It scrapes real data from the live uagc.edu site, caches it as structured JSON, and exposes it through MCP tools over SSE — connectable to ChatGPT, Claude Desktop, Cursor, and any MCP client.
-
-| Component | Description |
-|-----------|-------------|
-| [Agent Bridge](./agent-bridge/) | Python FastMCP server with 5 tools: searchPrograms, getProgramDetails, getAdmissionsSteps, getFinancialAidEstimate, submitRFI |
-| [Scraper](./agent-bridge/scraper.py) | Fetches live uagc.edu content and structures it into cached JSON |
-| [AEO Files](./agent-bridge/aeo/) | Discovery files: webmcp.json manifest, llms.txt, agents.md |
-
-**Quick start:**
-```bash
-cd agent-bridge
-pip install -r requirements.txt
-python scraper.py        # scrape uagc.edu → cache/
-python server.py         # start MCP server on :8000
-```
-
-## Quick Links
-
-- [WebMCP W3C Spec](https://webmachinelearning.github.io/webmcp/)
-- [WebMCP GitHub](https://github.com/webmachinelearning/webmcp)
-- [Chrome WebMCP Blog](https://developer.chrome.com/blog/webmcp-mcp-usage)
-- [Near Future Laboratory — Tarpit AI Scrapers](https://nearfuturelaboratory.com/artifacts/ai/tarpit-ai-scrappers/)
-- [Nepenthes (AI crawler tarpit)](https://zadzmo.org/code/nepenthes)
-- [Cloudflare AI Labyrinth](https://blog.cloudflare.com/ai-labyrinth/)
-- [ai-scraping-defense (multi-layer)](https://github.com/rhamenator/ai-scraping-defense)
-- [TDMRep (W3C)](https://w3c.github.io/tdm-reservation-protocol/spec/)
-- [AGENTS.md (Agentic AI Foundation)](https://www.agents.md/)
+| [White Paper](./UAGC_WebMCP_WhitePaper.md) | Full research paper v2.0 (~10,900 words, 53 references): *UAGC WebMCP: Building a Dual-Layer Agentic Web Strategy* — covers WebMCP API dictionary, browser support matrix, tarpit ecosystem comparison, canary token methodology, legal landscape, FERPA/CCPA/GLBA compliance, AEO analysis, competitive landscape, and implementation roadmap |
+| [Executive Brief](./UAGC_WebMCP_ExecutiveBrief.md) | Condensed strategy overview for leadership |
+| [Technical Appendices](./UAGC_WebMCP_Appendices.md) | Detailed technical specifications and reference material |
+| [HTML Presentation](./index.html) | **Agentflow** layout: left-to-right invited vs. defense paths, three-line story, pilot KPIs — for exec teams |
+| [Document Viewer](./docs.html) | Interactive document viewer for all strategy papers |
 
 ## Core Concept
 
@@ -57,3 +30,14 @@ UAGC WebMCP proposes a **dual-layer architecture**:
 1. Does WebMCP materially improve user experience and conversion metrics for public-site tasks?
 2. Can UAGC safely expose tools without compromising student privacy or violating FERPA/CCPA?
 3. What operational overhead and infrastructure changes are required to run WebMCP at scale?
+
+## Quick Links
+
+- [WebMCP W3C Spec](https://webmachinelearning.github.io/webmcp/)
+- [WebMCP GitHub](https://github.com/webmachinelearning/webmcp)
+- [Chrome WebMCP Blog](https://developer.chrome.com/blog/webmcp-mcp-usage)
+- [Near Future Laboratory — Tarpit AI Scrapers](https://nearfuturelaboratory.com/artifacts/ai/tarpit-ai-scrappers/)
+- [Nepenthes (AI crawler tarpit)](https://zadzmo.org/code/nepenthes)
+- [Cloudflare AI Labyrinth](https://blog.cloudflare.com/ai-labyrinth/)
+- [TDMRep (W3C)](https://w3c.github.io/tdm-reservation-protocol/spec/)
+- [AGENTS.md (Agentic AI Foundation)](https://www.agents.md/)

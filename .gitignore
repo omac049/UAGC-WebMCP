@@ -1,3 +1,7 @@
+# ── Local-only components (never push to public repo) ──
+agent-bridge/
+prototype/
+
 # Secrets
 .env
 .env.*
