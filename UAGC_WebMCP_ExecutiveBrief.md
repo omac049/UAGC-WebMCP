@@ -1,7 +1,7 @@
 # UAGC WebMCP: Executive Brief
 
 **Controlled AI Agent Access and Active Scraping Defense**  
-Version 2.0 · April 2026
+Version 2.1 · April 2026
 
 ---
 
@@ -13,11 +13,24 @@ AI-assisted browsing and agent-mediated discovery are emerging as strategically 
 
 UAGC WebMCP pairs invitation with deterrence. **Layer 1** exposes public enrollment journeys as browser-native tools aligned with the W3C Web Model Context Protocol (WebMCP): program search, admissions steps, and RFI submission, executed with explicit contracts rather than ad hoc screen scraping. **Layer 2** routes suspected unauthorized crawlers into honeypot and tarpit infrastructure that wastes scraper resources and limits high-value extraction, while compliant indexing and human traffic follow normal paths. Layer 2 is isolated from production content URLs and governed by whitelists, monitoring, and legal review described in the full paper. The operating principle is straightforward: *invited guests* receive sanctioned tools; *uninvited scrapers* are denied a productive harvest.
 
+## The Precedent: Amazon v. Perplexity (March 2026)
+
+In March 2026, a U.S. federal judge granted Amazon a temporary injunction blocking Perplexity's "Comet" AI browser from scraping its site, finding **"strong evidence"** of unauthorized access and **"essentially undisputed evidence"** of harm ([CNBC, March 10, 2026](https://www.cnbc.com/2026/03/10/amazon-wins-court-order-to-block-perplexitys-ai-shopping-agent.html)). The case exposes how unauthorized AI agents disrupt entire platform ecosystems — not just content extraction, but advertising revenue, customer data security, and brand experience control.
+
+**The higher-education parallel is direct.** Without structured agent pathways, UAGC faces the same category of risks:
+
+- **Discovery intermediation:** Unauthorized agents could surface UAGC program data on third-party platforms, bypassing enrollment funnels and attribution tracking.
+- **Intent data leakage:** Prospective student search patterns become the agent provider's data asset rather than UAGC's own marketing intelligence.
+- **Revenue model disruption:** Just as Amazon's advertising contracts were jeopardized when agents bypassed product pages, UAGC's speed-to-lead advantage erodes when agents mediate the first interaction outside institutional control.
+
+Amazon responded reactively — blocking dozens of agents, building an in-house alternative, and filing a federal lawsuit after the damage was done. The dual-layer architecture proposed here allows UAGC to **act proactively**: build the authorized channel and the defense layer simultaneously, before the reactive cycle begins.
+
 ## Why UAGC
 
 - **Enrollment context:** Projections indicate a 13–15% decline in high school graduates through 2037; speed-to-lead remains strategically important, with roughly 78% of students enrolling with the first institution that responds.
 - **Reuse of existing assets:** Program catalogs, admissions checklists, and financial aid calculators already exist; WebMCP surfaces them as structured tools instead of funding parallel content pipelines.
-- **Human-in-the-loop fit:** Students do not fully delegate enrollment; WebMCP’s tab-bound model keeps the agent and the student in the same browser session, preserving transparency, consent paths, and institutional UX control.
+- **Human-in-the-loop fit:** Students do not fully delegate enrollment; WebMCP's tab-bound model keeps the agent and the student in the same browser session, preserving transparency, consent paths, and institutional UX control.
+- **Judicial clarity:** The Amazon v. Perplexity ruling confirms that platforms have legal standing to block unauthorized AI agents and that unauthorized access creates cognizable harm — strengthening the rationale for both the invitation layer and the defense layer.
 - **Measured first-mover window:** As of April 2026, no university has been publicly confirmed deploying W3C WebMCP tools in production, which creates a finite opportunity for disciplined, low-regret experimentation.
 
 ## Pilot Scope
@@ -35,4 +48,4 @@ We recommend leadership approve a 60–90 day pilot of the UAGC WebMCP dual-laye
 
 ## Supporting Materials
 
-Decision-grade depth, technical specifications, threat modeling, regulatory analysis (FERPA/CCPA/GLBA and related frameworks), and the full reference list are contained in **UAGC_WebMCP_WhitePaper.md** (Version 2.0, April 2026). Technical and legal appendices distributed with that white paper should be treated as companion sources for implementation teams and counsel.
+Decision-grade depth, technical specifications, threat modeling, regulatory analysis (FERPA/CCPA/GLBA and related frameworks), the Amazon v. Perplexity case study, and the full reference list are contained in **UAGC_WebMCP_WhitePaper.md** (Version 2.2, April 2026). Technical and legal appendices distributed with that white paper should be treated as companion sources for implementation teams and counsel.

@@ -257,6 +257,7 @@
     <a href="#agentflow">Agentflow</a>
     <a href="#demo">Demo</a>
     <a href="#compare">Compare</a>
+    <a href="#precedent">Why Now</a>
     <a href="#roadmap">Roadmap</a>
     <a href="#pilot">Targets</a>
     <span style="width:1px;height:16px;background:rgba(250,250,248,0.15);align-self:center"></span>
@@ -455,6 +456,49 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════
+     WHY NOW — Amazon v. Perplexity precedent
+     ═══════════════════════════════════════════════ -->
+<section class="ba-section reveal" id="precedent" style="padding-bottom:0">
+  <div class="sec-head">
+    <h2>Why this matters now</h2>
+    <p>A federal court just validated the right to block unauthorized AI agents — and exposed the real cost of inaction.</p>
+  </div>
+</section>
+<section style="max-width:72rem;margin:0 auto;padding:0 clamp(1rem,3vw,1.5rem) 3rem">
+  <div style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(1.25rem,3vw,2rem);margin-top:1rem">
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap">
+      <span style="display:inline-block;padding:0.25rem 0.65rem;background:rgba(171,35,40,0.1);color:var(--uagc);font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:4px">Federal precedent</span>
+      <span style="font-size:0.8125rem;color:var(--muted)">March 2026 · U.S. District Court, N.D. California</span>
+    </div>
+    <h3 style="font-family:var(--font-serif);font-size:clamp(1.25rem,3vw,1.65rem);font-weight:400;margin:0 0 1rem;line-height:1.2"><em>Amazon v. Perplexity</em> — The court blocked unauthorized AI agents. The playbook applies to every platform.</h3>
+    <p style="font-size:0.9375rem;color:var(--muted);margin:0 0 1.5rem;max-width:48rem">Amazon won a temporary injunction against Perplexity's "Comet" AI browser for scraping its site without authorization. The judge found <strong style="color:var(--ink)">"strong evidence"</strong> of unauthorized access and <strong style="color:var(--ink)">"essentially undisputed evidence"</strong> of harm. This is the strongest judicial signal that platforms have standing to control AI agent access.</p>
+    <div style="display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden">
+      <div style="display:grid;gap:1px;grid-template-columns:repeat(2,1fr)">
+        <div style="background:var(--surface);padding:1rem 1.15rem">
+          <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--defense);margin:0 0 0.35rem">What Amazon faced</p>
+          <p style="font-size:0.8125rem;color:var(--muted);margin:0">Concealed AI agents bypassed controls, accessed customer accounts, and disrupted ad revenue — requiring new detection systems to maintain advertiser contracts.</p>
+        </div>
+        <div style="background:var(--surface);padding:1rem 1.15rem">
+          <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--uagc);margin:0 0 0.35rem">What UAGC could face</p>
+          <p style="font-size:0.8125rem;color:var(--muted);margin:0">Unauthorized agents intermediating program discovery, bypassing enrollment funnels, and absorbing prospective student intent data that should power UAGC's marketing analytics.</p>
+        </div>
+      </div>
+      <div style="display:grid;gap:1px;grid-template-columns:repeat(2,1fr)">
+        <div style="background:var(--surface);padding:1rem 1.15rem">
+          <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin:0 0 0.35rem">Amazon's response (reactive)</p>
+          <p style="font-size:0.8125rem;color:var(--muted);margin:0">Blocked dozens of AI agents including ChatGPT. Built Rufus (in-house assistant). Filed federal lawsuit. <strong style="color:var(--ink)">Cost: months of engineering, legal fees, lost data.</strong></p>
+        </div>
+        <div style="background:var(--surface);padding:1rem 1.15rem">
+          <p style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--invite);margin:0 0 0.35rem">UAGC's approach (proactive)</p>
+          <p style="font-size:0.8125rem;color:var(--muted);margin:0">Build the authorized channel <em>and</em> the defense layer simultaneously. <strong style="color:var(--ink)">Welcome legitimate agents. Trap unauthorized scrapers. From day one.</strong></p>
+        </div>
+      </div>
+    </div>
+    <p style="margin:1.25rem 0 0;font-size:0.78rem;color:var(--muted)">Source: <a href="https://www.cnbc.com/2026/03/10/amazon-wins-court-order-to-block-perplexitys-ai-shopping-agent.html" style="color:var(--uagc)">CNBC, March 10, 2026</a> · <a href="docs.html#UAGC_WebMCP_WhitePaper.md" style="color:var(--uagc)">Full analysis in White Paper §4.1</a></p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
      COMPLIANCE
      ═══════════════════════════════════════════════ -->
 <section class="comp-section reveal" id="compliance">
@@ -570,7 +614,7 @@
   </details>
   <details>
     <summary>Full white paper and references</summary>
-    <div class="app-body"><p>Deep dive: threat model, FERPA tiers, roadmap phases, and 53 references.</p><p><a href="docs.html#UAGC_WebMCP_WhitePaper.md" style="color:var(--uagc);font-weight:600">Core white paper</a> · <a href="docs.html#UAGC_WebMCP_ExecutiveBrief.md" style="color:var(--uagc);font-weight:600">Executive brief</a> · <a href="docs.html#UAGC_WebMCP_Appendices.md" style="color:var(--uagc);font-weight:600">Technical &amp; legal appendices</a></p></div>
+    <div class="app-body"><p>Deep dive: threat model, FERPA tiers, roadmap phases, Amazon v. Perplexity case study, and 54 references.</p><p><a href="docs.html#UAGC_WebMCP_WhitePaper.md" style="color:var(--uagc);font-weight:600">Core white paper</a> · <a href="docs.html#UAGC_WebMCP_ExecutiveBrief.md" style="color:var(--uagc);font-weight:600">Executive brief</a> · <a href="docs.html#UAGC_WebMCP_Appendices.md" style="color:var(--uagc);font-weight:600">Technical &amp; legal appendices</a></p></div>
   </details>
 </section>
 
