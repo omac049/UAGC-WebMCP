@@ -6,7 +6,7 @@
 **Date:** April 2026  
 **Authors:** UAGC Digital Strategy & Technology Team  
 **Classification:** Strategic Research Document  
-**Change log:** v2.0 — Added WebMCP API dictionary, browser support matrix, Nepenthes operational details, tarpit ecosystem comparison, canary token methodology, legal landscape analysis, expanded FERPA/CCPA/GLBA with CFR citations, school official exception analysis, state AI regulations, accreditor guidance, AEO confirmed-vs-speculative analysis, competitive landscape, 53 references (up from 19); v2.1 — Restructured for executive readability: added reading guide, explicit recommendation, moved deep technical and legal detail to companion appendices document
+**Change log:** v2.0 — Added WebMCP API dictionary, browser support matrix, Nepenthes operational details, tarpit ecosystem comparison, canary token methodology, legal landscape analysis, expanded FERPA/CCPA/GLBA with CFR citations, school official exception analysis, state AI regulations, accreditor guidance, AEO confirmed-vs-speculative analysis, competitive landscape, 53 references (up from 19); v2.1 — Restructured for executive readability: added reading guide, explicit recommendation, moved deep technical and legal detail to companion appendices document; v2.2 — Added Amazon v. Perplexity case study (March 2026 federal injunction), expanded legal landscape with judicial precedent for blocking unauthorized AI agents, new section on agentic disruption of in-platform ecosystems, 54 references
 
 ---
 
@@ -53,7 +53,7 @@
 13. [Future Directions](#13-future-directions)
 14. [Recommendation](#14-recommendation)
 15. [Conclusion](#15-conclusion)
-16. [References](#16-references) (53 sources)
+16. [References](#16-references) (54 sources)
 
 ---
 
@@ -200,6 +200,17 @@ Sophisticated bots bypass `robots.txt` by spoofing user agents (pretending to be
 - **Competitive intelligence leakage.** Pricing, program structures, and strategic positioning are absorbed into models that competitors can query.
 - **Infrastructure cost.** Unauthorized crawlers consume server resources, bandwidth, and CDN capacity.
 
+#### The Amazon v. Perplexity Precedent (March 2026)
+
+The tension between platforms and unauthorized AI agents escalated into federal litigation in March 2026 when Amazon won a temporary injunction against Perplexity AI, blocking its "Comet" AI browser from accessing Amazon's website [54]. The case illustrates how agentic frameworks can disrupt entire in-platform ecosystems:
+
+- **Concealed AI agents.** Amazon alleged that Perplexity took deliberate steps to "conceal" its AI agents so they could continue scraping Amazon's site without authorization — exactly the kind of user-agent spoofing that renders `robots.txt` meaningless.
+- **Customer data security.** Amazon argued that Perplexity's agents posed security risks because they could "act within protected computer systems, including private customer accounts requiring a password" — the same concern UAGC must consider for authenticated student portals.
+- **Advertising ecosystem disruption.** When AI agents generate ad traffic, those impressions must be detected and filtered before advertisers are billed. Amazon disclosed that it needed to develop "new detection mechanisms to identify and exclude automated traffic" and modify its advertising systems to maintain contractual obligations with advertisers. This demonstrates how unauthorized agents don't just extract content — they actively degrade the business models that subsidize free content.
+- **Judicial validation.** U.S. District Judge Maxine Chesney ruled that Amazon provided "strong evidence" of unauthorized access and "essentially undisputed evidence" of harm, finding a "likelihood of success on the merits." This is the strongest judicial signal to date that website operators have legal standing to block unauthorized AI agents.
+
+Amazon has since broadly locked down its shopping sites from AI agents, blocking dozens of agents including OpenAI's ChatGPT, while investing in homegrown tools like Rufus. This pattern — block unauthorized agents, invest in controlled alternatives — mirrors exactly the dual-layer strategy proposed in this paper. The difference is that UAGC can implement both layers from the start, rather than reacting after the fact.
+
 ### 4.2 The Tarpit Concept
 
 The Near Future Laboratory's "Tarpit AI Scrapers" artifact describes a world where honeypot sites — designed to be attractive to AI scrapers — are filled with Markov chains of plausible-sounding nonsense that is nearly impossible to detect and untangle once ingested. The piece describes a fictional company, "Amalgamated Bossenbrooks," that provides both tarpit setup services and avoidance services for model makers — a dual-sided market that is both controversial and in demand.
@@ -242,7 +253,12 @@ Canary tokens are rare, unique strings embedded in honeypot content that allow U
 
 ### 4.5 Legal Landscape for Tarpit Deployment
 
-No court decision has specifically addressed AI tarpit liability. Analysis of the Computer Fraud and Abuse Act (18 U.S.C. § 1030) and UK Computer Misuse Act suggests that operating your own server to serve unhelpful content to unwanted visitors is legally distinguishable from accessing an attacker's systems — but case law is absent. UAGC's conservative implementation ensures honeypot paths are excluded from robots.txt and sitemap.xml, serve no executable code, whitelist legitimate search engines, and require legal review before deployment.
+No court decision has specifically addressed AI tarpit liability. However, the legal landscape shifted materially in March 2026 when a federal judge granted Amazon a temporary injunction against Perplexity's Comet AI browser [54], finding "strong evidence" of unauthorized access and a "likelihood of success on the merits." While this case addresses unauthorized agent *access* (not tarpits), it establishes two principles directly relevant to UAGC's defense strategy:
+
+1. **Website operators have standing to block unauthorized AI agents.** The court validated Amazon's right to control which automated systems access its platform, even when those systems act at a user's direction.
+2. **Unauthorized AI agent access creates cognizable harm.** The court accepted Amazon's evidence of costs incurred developing detection mechanisms and modifying systems — a lower bar than the typical CFAA damages threshold.
+
+Analysis of the Computer Fraud and Abuse Act (18 U.S.C. § 1030) and UK Computer Misuse Act suggests that operating your own server to serve unhelpful content to unwanted visitors is legally distinguishable from accessing an attacker's systems. The Amazon v. Perplexity ruling strengthens this position: if blocking unauthorized agents is legally supported, then serving those agents synthetic content on your own infrastructure is an even more defensible posture. UAGC's conservative implementation ensures honeypot paths are excluded from robots.txt and sitemap.xml, serve no executable code, whitelist legitimate search engines, and require legal review before deployment.
 
 > For the full legal analysis including CFAA, CMA, and contractual framing, see **Appendix G** in the companion Technical and Legal Appendices document.
 
@@ -964,7 +980,24 @@ The Near Future Laboratory's fictional company that both creates tarpits and hel
 - **Publish a "clean content" API** that model makers can license, providing a legitimate alternative to scraping.
 - **Participate in industry standards** for AI content licensing and attribution.
 
-### 13.5 Content Licensing and the Structured Web
+### 13.5 Agentic Disruption of In-Platform Ecosystems
+
+The Amazon v. Perplexity case [54] reveals a broader pattern: AI agents don't just extract content — they disrupt the entire ecosystem of services, revenue models, and trust relationships that platforms depend on. This pattern will accelerate across every sector, including higher education.
+
+**What Amazon's case teaches UAGC:**
+
+| Platform Impact | Amazon Example | UAGC Parallel |
+|----------------|----------------|---------------|
+| **Revenue model disruption** | AI agents bypass ads, requiring new detection systems to maintain advertiser billing obligations | AI agents could bypass enrollment funnels, attribution tracking, and conversion analytics that justify marketing spend |
+| **Authentication boundary erosion** | Agents acted within password-protected customer accounts | Agents could attempt to access authenticated student portals (Constellation, financial aid status) without proper FERPA controls |
+| **Brand experience loss** | Perplexity's Comet mediated the Amazon experience outside Amazon's control | An AI assistant summarizing UAGC programs loses the campus branding, testimonials, and emotional engagement that drive enrollment decisions |
+| **Data sovereignty** | Customer behavior data flows to the agent provider, not the platform | Prospective student intent signals (what programs they searched, what questions they asked) become the agent provider's data asset, not UAGC's |
+
+**The higher-education-specific risk** is that as AI agents become the primary discovery channel for prospective students, institutions that don't offer structured agent pathways (WebMCP/MCP) will have their content intermediated by agents they don't control — losing attribution, branding, and the enrollment relationship. Institutions that do offer structured pathways retain control of the interaction, capture intent data, and ensure accurate representation.
+
+This is not hypothetical. Amazon responded by blocking dozens of AI agents and investing in its own AI assistant (Rufus). Universities face the same choice: build the authorized channel now, or spend resources blocking unauthorized agents later.
+
+### 13.6 Content Licensing and the Structured Web
 
 The long-term vision is a web where:
 - Authorized agents access content through structured tools (WebMCP) with clear terms of service.
@@ -1106,6 +1139,10 @@ The 60–90-day pilot is scoped to answer three questions with minimal risk and 
 51. Virginia Tech: Generative AI Responsible and Ethical Framework. 2025. https://ai.vt.edu/content/dam/ai_vt_edu/Generative-AI-Responsible-and-Ethical-Framework-v03-04-2025-3.pdf
 52. Michigan State University: AI Guidelines. https://ai.msu.edu/guidelines
 53. Stanford: AI at Stanford Advisory Committee Report. 2024. https://provost.stanford.edu/news/report-ai-stanford-advisory-committee
+
+### AI Agent Litigation and Platform Defense
+
+54. "Amazon wins court order to block Perplexity's AI shopping agent." Annie Palmer, CNBC. March 10, 2026. https://www.cnbc.com/2026/03/10/amazon-wins-court-order-to-block-perplexitys-ai-shopping-agent.html
 
 ---
 
